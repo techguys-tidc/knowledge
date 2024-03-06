@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Elasticsearch Cluster on Ubuntu | My New Hugo Site</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Install Elasticsearch Cluster on Ubuntu Ref Glossary Install Elasticsearch Setup hosts file Add Elasticsearch 8 Repository Install Elastic search Create /var/data Backup Elasticsearch yaml Select Node Role Master, data_content, data_hot Start Elasticsearch Reset Elasticsearch Password Test Curl, You know for search Join other Node Add Elasticsearch 8 Repository Install Elastic search Create /var/data Generate Enrollment Token on Master Node Reconfigure joinee node Select Node Role data_warm data_cold data_frozen Start Elasticsearch Install Kibana Install Kibana Generate Kibana Token Enroll Kibeana yaml , listen 0.">
+    <meta name="generator" content="Hugo 0.123.7">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+
+    
+      
+
+    
+
+    
+
+    
+      <link rel="canonical" href="http://localhost:1313/test/">
+    
+
+    <meta property="og:title" content="Elasticsearch Cluster on Ubuntu" />
+<meta property="og:description" content="Install Elasticsearch Cluster on Ubuntu Ref Glossary Install Elasticsearch Setup hosts file Add Elasticsearch 8 Repository Install Elastic search Create /var/data Backup Elasticsearch yaml Select Node Role Master, data_content, data_hot Start Elasticsearch Reset Elasticsearch Password Test Curl, You know for search Join other Node Add Elasticsearch 8 Repository Install Elastic search Create /var/data Generate Enrollment Token on Master Node Reconfigure joinee node Select Node Role data_warm data_cold data_frozen Start Elasticsearch Install Kibana Install Kibana Generate Kibana Token Enroll Kibeana yaml , listen 0." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/test/" /><meta property="article:section" content="" />
+
+
+
+<meta itemprop="name" content="Elasticsearch Cluster on Ubuntu">
+<meta itemprop="description" content="Install Elasticsearch Cluster on Ubuntu Ref Glossary Install Elasticsearch Setup hosts file Add Elasticsearch 8 Repository Install Elastic search Create /var/data Backup Elasticsearch yaml Select Node Role Master, data_content, data_hot Start Elasticsearch Reset Elasticsearch Password Test Curl, You know for search Join other Node Add Elasticsearch 8 Repository Install Elastic search Create /var/data Generate Enrollment Token on Master Node Reconfigure joinee node Select Node Role data_warm data_cold data_frozen Start Elasticsearch Install Kibana Install Kibana Generate Kibana Token Enroll Kibeana yaml , listen 0.">
+
+<meta itemprop="wordCount" content="1387">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Elasticsearch Cluster on Ubuntu"/>
+<meta name="twitter:description" content="Install Elasticsearch Cluster on Ubuntu Ref Glossary Install Elasticsearch Setup hosts file Add Elasticsearch 8 Repository Install Elastic search Create /var/data Backup Elasticsearch yaml Select Node Role Master, data_content, data_hot Start Elasticsearch Reset Elasticsearch Password Test Curl, You know for search Join other Node Add Elasticsearch 8 Repository Install Elastic search Create /var/data Generate Enrollment Token on Master Node Reconfigure joinee node Select Node Role data_warm data_cold data_frozen Start Elasticsearch Install Kibana Install Kibana Generate Kibana Token Enroll Kibeana yaml , listen 0."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        My New Hugo Site
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <h1 class="f1">
+          Elasticsearch Cluster on Ubuntu
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links mid-gray">
+        <ul>
+<li><a href="#install-elasticsearch-cluster-on-ubuntu">Install Elasticsearch Cluster on Ubuntu</a>
+<ul>
+<li><a href="#ref">Ref</a></li>
+<li><a href="#glossary">Glossary</a></li>
+<li><a href="#install-elasticsearch">Install Elasticsearch</a>
+<ul>
+<li><a href="#setup-hosts-file">Setup hosts file</a></li>
+<li><a href="#add-elasticsearch-8-repository">Add Elasticsearch 8 Repository</a></li>
+<li><a href="#install-elastic-search">Install Elastic search</a></li>
+<li><a href="#create-vardata">Create /var/data</a></li>
+<li><a href="#backup-elasticsearch-yaml">Backup Elasticsearch yaml</a></li>
+<li><a href="#select-node-role">Select Node Role</a>
+<ul>
+<li><a href="#master-data_content-data_hot">Master, data_content, data_hot</a></li>
+</ul>
+</li>
+<li><a href="#start-elasticsearch">Start Elasticsearch</a></li>
+<li><a href="#reset-elasticsearch-password">Reset Elasticsearch Password</a></li>
+<li><a href="#test-curl-you-know-for-search">Test Curl, You know for search</a></li>
+</ul>
+</li>
+<li><a href="#join-other-node">Join other Node</a>
+<ul>
+<li><a href="#add-elasticsearch-8-repository-1">Add Elasticsearch 8 Repository</a></li>
+<li><a href="#install-elastic-search-1">Install Elastic search</a></li>
+<li><a href="#create-vardata-1">Create /var/data</a></li>
+<li><a href="#generate-enrollment-token-on-master-node">Generate Enrollment Token on Master Node</a></li>
+<li><a href="#reconfigure-joinee-node">Reconfigure joinee node</a></li>
+<li><a href="#select-node-role-1">Select Node Role</a>
+<ul>
+<li><a href="#data_warm">data_warm</a></li>
+<li><a href="#data_cold">data_cold</a></li>
+<li><a href="#data_frozen">data_frozen</a></li>
+</ul>
+</li>
+<li><a href="#start-elasticsearch-1">Start Elasticsearch</a></li>
+</ul>
+</li>
+<li><a href="#install-kibana">Install Kibana</a>
+<ul>
+<li><a href="#install-kibana-1">Install Kibana</a></li>
+<li><a href="#generate-kibana-token">Generate Kibana Token</a></li>
+<li><a href="#enroll">Enroll</a></li>
+<li><a href="#kibeana-yaml--listen-0000">Kibeana yaml , listen 0.0.0.0</a></li>
+</ul>
+</li>
+<li><a href="#generate-fleet-policy-with-correct-url-and-port">Generate Fleet policy with correct url and port</a></li>
+<li><a href="#install-fleet-server">Install Fleet Server</a>
+<ul>
+<li><a href="#elastic-bug--elastic-agent-use-local-cahced-file">Elastic Bug , Elastic agent use local cahced file</a></li>
+<li><a href="#uninstall-elastic-agent">Uninstall Elastic Agent</a></li>
+<li><a href="#install-kibana-agent">Install Kibana Agent</a></li>
+<li><a href="#install-kube-metrics-server">Install Kube-metrics-server</a></li>
+<li><a href="#add---kubelet-insecure-tls-to-metric-server-deployment">add &ndash;kubelet-insecure-tls to metric server deployment</a></li>
+<li><a href="#install-kube-state-metric">Install kube-state-metric</a></li>
+<li><a href="#replace-ubuntu-mirror">Replace Ubuntu Mirror</a></li>
+<li><a href="#download-fleet-daemonset-agent-manifest-from-kibana">Download fleet daemonset agent manifest from kibana</a></li>
+<li><a href="#create-elastic-ssl-cert-configmap">Create Elastic SSL Cert Configmap</a></li>
+<li><a href="#create-cert">Create Cert</a></li>
+<li><a href="#edit-username--password--kibana-url--insecure-flag">Edit username &amp; password &amp; kibana url &amp; insecure flag</a></li>
+<li><a href="#add-ca-cert-to-rhel">Add CA Cert to RHEL</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="install-elasticsearch-cluster-on-ubuntu">Install Elasticsearch Cluster on Ubuntu</h1>
+<h2 id="ref">Ref</h2>
+<p><a href="https://blog.devops.dev/how-to-install-elastic-stack-on-ubuntu-22-04-lts-18c3d9120494">&#x1f4c3; <strong>Install</strong>  Elasticsearch 8 on Ubuntu 22.04 LTS</a></p>
+<p><a href="https://www.youtube.com/watch?v=TfhcJXdNSdI">&#x1f4fa; <strong>Youtube</strong> : Setup Elasticsearch Cluster + Kibana 8.x</a></p>
+<p><a href="https://opster.com/guides/elasticsearch/capacity-planning/elasticsearch-hot-warm-cold-frozen-architecture/">&#x1f44d; <strong>Workshop</strong> How to Set Up a Hot/Warm/Cold/Frozen Elasticsearch Architecture</a></p>
+<p><a href="https://www.elastic.co/blog/kubernetes-cluster-metrics-logs-monitoring">&#x1f50d; <strong>Info</strong> Kubenetes Monitoring</a></p>
+<h2 id="glossary">Glossary</h2>
+<p>Query Node</p>
+<pre tabindex="0"><code>curl -XGET --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200/_cat/nodes?pretty;
+10.10.51.32 19 92 0 0.02 0.02 0.00 w   - k-gong-elk-02
+10.10.51.33  6 90 0 0.00 0.00 0.00 c   - k-gong-elk-03
+10.10.51.31 21 87 1 0.16 0.13 0.09 hms * k-gong-elk-01
+10.10.51.34  9 91 0 0.01 0.02 0.00 f   - k-gong-elk-04
+</code></pre><p>Glossary</p>
+<pre tabindex="0"><code>m: master node
+s: content tier
+h: hot data tier
+w: warm data tier
+c: cold data tier
+f: frozen data tier
+</code></pre><h2 id="install-elasticsearch">Install Elasticsearch</h2>
+<h3 id="setup-hosts-file">Setup hosts file</h3>
+<pre tabindex="0"><code>{
+echo &#34;
+10.10.51.31     k-gong-elk-01
+10.10.51.32     k-gong-elk-02
+10.10.51.33     k-gong-elk-03
+10.10.51.34     k-gong-elk-04&#34; &gt;&gt; /etc/hosts
+}
+</code></pre><h3 id="add-elasticsearch-8-repository">Add Elasticsearch 8 Repository</h3>
+<pre tabindex="0"><code>{
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+echo &#34;deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main&#34; | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+}
+</code></pre><h3 id="install-elastic-search">Install Elastic search</h3>
+<p>Note : save output text after install</p>
+<pre tabindex="0"><code>{
+sudo apt-get update
+sudo apt-get install -y elasticsearch=8.12.2
+}
+</code></pre><h3 id="create-vardata">Create /var/data</h3>
+<pre tabindex="0"><code>{
+mkdir -p /var/data/elasticsearch
+rm -rf /var/data/elasticsearch/*
+chown -R elasticsearch:elasticsearch /var/data
+}
+</code></pre><h3 id="backup-elasticsearch-yaml">Backup Elasticsearch yaml</h3>
+<pre tabindex="0"><code>{
+cp /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.bak
+}
+</code></pre><h3 id="select-node-role">Select Node Role</h3>
+<h4 id="master-data_content-data_hot">Master, data_content, data_hot</h4>
+<pre tabindex="0"><code>{
+export CLUSTER_NAME=&#34;gong-cluster&#34;
+export INITIAL_MASTER_NODES=k-gong-elk-01
+echo &#34;
+cluster.initial_master_nodes:
+  - ${INITIAL_MASTER_NODES}
+discovery.seed_hosts:
+  - ${INITIAL_MASTER_NODES}:9300
+cluster.name: ${CLUSTER_NAME}
+node.roles: [master,data_content,data_hot]
+node.name: ${HOSTNAME}
+network.host: ${HOSTNAME}
+path.data: /var/data/elasticsearch/elasticsearch
+path.logs: /var/log/elasticsearch
+path.repo: /var/data/elasticsearch/snapshots
+###### Allow HTTP API connections from anywhere
+###### Connections are encrypted and require user authentication
+http.host: 0.0.0.0
+###### Allow other nodes to join the cluster from anywhere
+###### Connections are encrypted and mutually authenticated
+transport.host: 0.0.0.0
+
+###### xpack
+xpack.security.enabled: true
+
+xpack.security.enrollment.enabled: true
+
+xpack.security.http.ssl:
+  enabled: true
+  keystore.path: certs/http.p12
+
+xpack.security.transport.ssl:
+  enabled: true
+  verification_mode: certificate
+  keystore.path: certs/transport.p12
+  truststore.path: certs/transport.p12
+&#34; &gt; /etc/elasticsearch/elasticsearch.yml
+}
+</code></pre><h3 id="start-elasticsearch">Start Elasticsearch</h3>
+<pre tabindex="0"><code>{
+systemctl start elasticsearch.service
+systemctl status elasticsearch.service
+}
+</code></pre><h3 id="reset-elasticsearch-password">Reset Elasticsearch Password</h3>
+<p>Note : Keep Elasticsearch Password from output</p>
+<p>export ELASTIC_PASSWORD=password</p>
+<pre tabindex="0"><code>{
+/usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u elastic
+export ELASTIC_PASSWORD=&#34;password&#34;
+}
+</code></pre><h3 id="test-curl-you-know-for-search">Test Curl, You know for search</h3>
+<p>cert location : /etc/elasticsearch/certs/http_ca.crt</p>
+<pre tabindex="0"><code>{
+export ELASTIC_PASSWORD=password
+curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200
+curl -XGET --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200/_cat/nodes?pretty
+}
+</code></pre><hr>
+<h2 id="join-other-node">Join other Node</h2>
+<h3 id="add-elasticsearch-8-repository-1">Add Elasticsearch 8 Repository</h3>
+<pre tabindex="0"><code>{
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+echo &#34;deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main&#34; | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+}
+</code></pre><h3 id="install-elastic-search-1">Install Elastic search</h3>
+<p>Note : save output text after install</p>
+<pre tabindex="0"><code>{
+sudo apt-get update
+sudo apt-get install -y elasticsearch=8.12.2
+}
+</code></pre><h3 id="create-vardata-1">Create /var/data</h3>
+<pre tabindex="0"><code>{
+mkdir -p /var/data/elasticsearch
+rm -rf /var/data/elasticsearch/*
+chown -R elasticsearch:elasticsearch /var/data
+}
+</code></pre><h3 id="generate-enrollment-token-on-master-node">Generate Enrollment Token on Master Node</h3>
+<pre tabindex="0"><code>{
+/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node
+}
+</code></pre><h3 id="reconfigure-joinee-node">Reconfigure joinee node</h3>
+<pre tabindex="0"><code>{
+export ENROLLMENT_TOKEN=abcdef
+/usr/share/elasticsearch/bin/./elasticsearch-reconfigure-node --enrollment-token ${ENROLLMENT_TOKEN}
+}
+</code></pre><h3 id="select-node-role-1">Select Node Role</h3>
+<h4 id="data_warm">data_warm</h4>
+<pre tabindex="0"><code>{
+export CLUSTER_NAME=&#34;gong-cluster&#34;
+export INITIAL_MASTER_NODES=k-gong-elk-01
+echo &#34;
+cluster.initial_master_nodes:
+  - ${INITIAL_MASTER_NODES}
+discovery.seed_hosts:
+  - ${INITIAL_MASTER_NODES}:9300
+cluster.name: ${CLUSTER_NAME}
+node.roles: [data_warm]
+node.name: ${HOSTNAME}
+network.host: ${HOSTNAME}
+path.data: /var/data/elasticsearch/elasticsearch
+path.logs: /var/log/elasticsearch
+path.repo: /var/data/elasticsearch/snapshots
+###### Allow HTTP API connections from anywhere
+###### Connections are encrypted and require user authentication
+http.host: 0.0.0.0
+###### Allow other nodes to join the cluster from anywhere
+###### Connections are encrypted and mutually authenticated
+transport.host: 0.0.0.0
+
+###### xpack
+xpack.security.enabled: true
+
+xpack.security.enrollment.enabled: true
+
+xpack.security.http.ssl:
+  enabled: true
+  keystore.path: certs/http.p12
+
+xpack.security.transport.ssl:
+  enabled: true
+  verification_mode: certificate
+  keystore.path: certs/transport.p12
+  truststore.path: certs/transport.p12
+&#34; &gt; /etc/elasticsearch/elasticsearch.yml
+}
+</code></pre><h4 id="data_cold">data_cold</h4>
+<pre tabindex="0"><code>{
+export CLUSTER_NAME=&#34;gong-cluster&#34;
+export INITIAL_MASTER_NODES=k-gong-elk-01
+echo &#34;
+cluster.initial_master_nodes:
+  - ${INITIAL_MASTER_NODES}
+discovery.seed_hosts:
+  - ${INITIAL_MASTER_NODES}:9300
+cluster.name: ${CLUSTER_NAME}
+node.roles: [data_cold]
+node.name: ${HOSTNAME}
+network.host: ${HOSTNAME}
+path.data: /var/data/elasticsearch/elasticsearch
+path.logs: /var/log/elasticsearch
+path.repo: /var/data/elasticsearch/snapshots
+###### Allow HTTP API connections from anywhere
+###### Connections are encrypted and require user authentication
+http.host: 0.0.0.0
+###### Allow other nodes to join the cluster from anywhere
+###### Connections are encrypted and mutually authenticated
+transport.host: 0.0.0.0
+
+###### xpack
+xpack.security.enabled: true
+
+xpack.security.enrollment.enabled: true
+
+xpack.security.http.ssl:
+  enabled: true
+  keystore.path: certs/http.p12
+
+xpack.security.transport.ssl:
+  enabled: true
+  verification_mode: certificate
+  keystore.path: certs/transport.p12
+  truststore.path: certs/transport.p12
+&#34; &gt; /etc/elasticsearch/elasticsearch.yml
+}
+</code></pre><h4 id="data_frozen">data_frozen</h4>
+<pre tabindex="0"><code>{
+export CLUSTER_NAME=&#34;gong-cluster&#34;
+export INITIAL_MASTER_NODES=k-gong-elk-01
+echo &#34;
+cluster.initial_master_nodes:
+  - ${INITIAL_MASTER_NODES}
+discovery.seed_hosts:
+  - ${INITIAL_MASTER_NODES}:9300
+cluster.name: ${CLUSTER_NAME}
+node.roles: [data_frozen]
+node.name: ${HOSTNAME}
+network.host: ${HOSTNAME}
+path.data: /var/data/elasticsearch/elasticsearch
+path.logs: /var/log/elasticsearch
+path.repo: /var/data/elasticsearch/snapshots
+###### Allow HTTP API connections from anywhere
+###### Connections are encrypted and require user authentication
+http.host: 0.0.0.0
+###### Allow other nodes to join the cluster from anywhere
+###### Connections are encrypted and mutually authenticated
+transport.host: 0.0.0.0
+
+###### xpack
+xpack.security.enabled: true
+
+xpack.security.enrollment.enabled: true
+
+xpack.security.http.ssl:
+  enabled: true
+  keystore.path: certs/http.p12
+
+xpack.security.transport.ssl:
+  enabled: true
+  verification_mode: certificate
+  keystore.path: certs/transport.p12
+  truststore.path: certs/transport.p12
+&#34; &gt; /etc/elasticsearch/elasticsearch.yml
+}
+</code></pre><h3 id="start-elasticsearch-1">Start Elasticsearch</h3>
+<pre tabindex="0"><code>{
+systemctl start elasticsearch.service
+systemctl status elasticsearch.service
+}
+</code></pre><hr>
+<h2 id="install-kibana">Install Kibana</h2>
+<h3 id="install-kibana-1">Install Kibana</h3>
+<pre tabindex="0"><code>{
+sudo apt-get install -y kibana=8.12.2
+}
+</code></pre><h3 id="generate-kibana-token">Generate Kibana Token</h3>
+<p>Note : Save Token from output</p>
+<p>Token : eyJ2ZXIiOiI4LjEyLjIiLCJhZHIiOlsiMTAuMTAuNTEuMzE6OTIwMCJdLCJmZ3IiOiJjNTE2MTQ5ZTZiOWMxNDM2Y2I4YTQ3NjZmYWIwMTUyOWU4OWNlOTdhNjJhNTVhNTdlYzQyMzUwZTYzZDIxMTIxIiwia2V5IjoiM2VrRERvNEJ6QWQ2cm1hdDItbnU6b094S0xyYWNTYmUwTmg0U1pFWHFjQSJ9</p>
+<pre tabindex="0"><code>{
+/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+}
+</code></pre><h3 id="enroll">Enroll</h3>
+<pre tabindex="0"><code>{
+export KIBANA_ENROLL_KEY=eyJ2ZXIiOiI4LjEyLjIiLCJhZHIiOlsiMTAuMTAuNTEuMzE6OTIwMCJdLCJmZ3IiOiJjNTE2MTQ5ZTZiOWMxNDM2Y2I4YTQ3NjZmYWIwMTUyOWU4OWNlOTdhNjJhNTVhNTdlYzQyMzUwZTYzZDIxMTIxIiwia2V5IjoiM2VrRERvNEJ6QWQ2cm1hdDItbnU6b094S0xyYWNTYmUwTmg0U1pFWHFjQSJ9
+cd /usr/share/kibana/
+./bin/kibana-setup --enrollment-token ${KIBANA_ENROLL_KEY}
+}
+</code></pre><h3 id="kibeana-yaml--listen-0000">Kibeana yaml , listen 0.0.0.0</h3>
+<pre tabindex="0"><code>{
+sed -i -Ee &#39;/^#server.host:/s/^.*$/server.host: 0.0.0.0/&#39; /etc/kibana/kibana.yml
+sudo systemctl restart kibana
+}
+</code></pre><hr>
+<h2 id="generate-fleet-policy-with-correct-url-and-port">Generate Fleet policy with correct url and port</h2>
+<p>fleet server name : fleet-01</p>
+<p>fleet URL : https://10.10.51.31:8220</p>
+<h2 id="install-fleet-server">Install Fleet Server</h2>
+<p>Generate Install Fleet Server from kibana</p>
+<p>Add Flag &ndash;insecure at the end</p>
+<pre tabindex="0"><code>{
+wget http://10.10.54.4/elastic-agent/elastic-agent-8.11.0-linux-x86_64.tar.gz
+tar -xzvf elastic-agent-8.11.0-linux-x86_64.tar.gz
+cd elastic-agent-8.11.0-linux-x86_64
+sudo ./elastic-agent install \
+  --fleet-server-es=https://10.10.51.31:9200 \
+  --fleet-server-service-token=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE3MDI4MzczNDk2MTA6RE9FMG90aVhSRC1ra3BFQVo1dnBFdw \
+  --fleet-server-policy=fleet-server-policy \
+  --fleet-server-es-ca-trusted-fingerprint=357ff7ad1c13e25ff3111574918de78f3bc21d9bd6696150b93cb36b4cdf174e \
+  --fleet-server-port=8220 --insecure
+}
+</code></pre><h3 id="elastic-bug--elastic-agent-use-local-cahced-file">Elastic Bug , Elastic agent use local cahced file</h3>
+<p><a href="https://github.com/elastic/elastic-agent/issues/3586">https://github.com/elastic/elastic-agent/issues/3586</a></p>
+<p>fix by : rm -rf /var/lib/elastic-agent-managed/kube-system/state</p>
+<hr>
+<h3 id="uninstall-elastic-agent">Uninstall Elastic Agent</h3>
+<pre tabindex="0"><code>{
+sudo /opt/Elastic/Agent/elastic-agent uninstall
+}
+</code></pre><h3 id="install-kibana-agent">Install Kibana Agent</h3>
+<pre tabindex="0"><code>{
+wget http://10.10.54.4/elastic-agent/elastic-agent-8.11.3-linux-x86_64.tar.gz
+tar xzvf elastic-agent-8.11.3-linux-x86_64.tar.gz
+cd elastic-agent-8.11.3-linux-x86_64
+sudo ./elastic-agent install --url=https://10.10.51.31:8220 --enrollment-token=dDV5VGVJd0I1U2Qyd0ZxWEp3MEo6NU9VbERSdWxRM0dXaGtyUE1ZMFhkUQ== \
+--insecure
+}
+</code></pre><p>tar xzvf elastic-agent-8.11.3-linux-x86_64.tar.gz
+cd elastic-agent-8.11.3-linux-x86_64
+sudo ./elastic-agent install &ndash;url=https://10.10.51.31:8220 &ndash;enrollment-token=cndZS2Q0d0JDbmY5RUJWRUQ5Nk86QWE2eHV4VUNTV09Jb3VpTHY5OGhsUQ== &ndash;insecure</p>
+<h3 id="install-kube-metrics-server">Install Kube-metrics-server</h3>
+<pre tabindex="0"><code>{
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+}
+</code></pre><h3 id="add---kubelet-insecure-tls-to-metric-server-deployment">add &ndash;kubelet-insecure-tls to metric server deployment</h3>
+<p>k edit -n=kube-system deployments.apps metrics-server</p>
+<pre tabindex="0"><code>{
+      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=4443
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+        - --kubelet-insecure-tls
+}
+</code></pre><hr>
+<h3 id="install-kube-state-metric">Install kube-state-metric</h3>
+<pre tabindex="0"><code>{
+git clone https://github.com/kubernetes/kube-state-metrics.git
+cd kube-state-metrics/examples/
+kubectl apply -f standard
+}
+</code></pre><hr>
+<h3 id="replace-ubuntu-mirror">Replace Ubuntu Mirror</h3>
+<pre tabindex="0"><code>{
+sed -i &#39;s/mirror1.ku.ac.th/mirrors.nipa.cloud/g&#39; /etc/apt/sources.list
+}
+</code></pre><hr>
+<h3 id="download-fleet-daemonset-agent-manifest-from-kibana">Download fleet daemonset agent manifest from kibana</h3>
+<p>login into kibana &amp; download fleeat daemonset agent manifest</p>
+<h3 id="create-elastic-ssl-cert-configmap">Create Elastic SSL Cert Configmap</h3>
+<h3 id="create-cert">Create Cert</h3>
+<p>{
+kubectl delete configmap elastic-ca-cert
+cd ~
+echo &lsquo;&mdash;&ndash;BEGIN CERTIFICATE&mdash;&ndash;
+MIIFWjCCA0KgAwIBAgIVAPYBdw7JTeakx1BviZavVysiO4pjMA0GCSqGSIb3DQEB
+CwUAMDwxOjA4BgNVBAMTMUVsYXN0aWNzZWFyY2ggc2VjdXJpdHkgYXV0by1jb25m
+aWd1cmF0aW9uIEhUVFAgQ0EwHhcNMjMxMjE3MTgxNjExWhcNMjYxMjE2MTgxNjEx
+WjA8MTowOAYDVQQDEzFFbGFzdGljc2VhcmNoIHNlY3VyaXR5IGF1dG8tY29uZmln
+dXJhdGlvbiBIVFRQIENBMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA
+pwP6wx97mZIyk+9Uoemw+eWLR637vA18NTtUIh0FePWXg2I4cj6QwXVixf3/ZtS6
+//KtyrWWoTf4qc573p1IRl5GoleDOV9JBok2d1clkJVINw4EIahNAQppiybnyZn6
+azzB06WQjf6r7EkXIlg7di2/l62EfEJ7GOOmf6WnDjJL/JHIY8b0cBTcQFRxcilz
+4jmbSgjAgG3qZktyK0bj9fGSGcdQ/VMPpPnZ6JqFlOq2AxRnoohlUWYrznMYv100
+oU9OLg0sGg6BEaJ7sgMXhv1oYlXdzwNExAazAzQO9ef9YYQQDHcICcnnyQmrSEPV
+4yQsfS02qK9edk2gyDJzyWPhAInlEd9YLHD6qqpTnq1+EpBI5GZiiGPat3AmQWsP
+g1uMudshpQuHcHHX6ZkBFG9Rlv0HLz7mBshn3q+0Jpq9zJzJi7/26s2wwilZbSeS
+tKWEOs6HpdEkfe+fM6pklgAqupQuK39PgDLjPSniCNbRRq/HZtkCmO0EIRLaledb
+NsZvYPdZrWVWOEwXBxnkRugwhn43aLyFSYSzcncdPsXkNDYk0DRUgwzPWp5vuzE0
+G79S8z0IcCpPkLbod3Mg61MD8yxjoCT59haopLELkl9S69uPq/+JKZTUovriIp2a
+fUlmU0cxw452rCKPF3iw9orhIMhrfUOPwt4r9uGuaJUCAwEAAaNTMFEwHQYDVR0O
+BBYEFJ4eQjX9rV9NkwOyrxQiurba8nb5MB8GA1UdIwQYMBaAFJ4eQjX9rV9NkwOy
+rxQiurba8nb5MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggIBAHyM
+1+iY8rFSTu2gRpAWJbz3D56YLxRrvyhx8smIZcp+hnGGV7dUtE5Zt6ExnXavWSNX
+kYvixTix/3dvB7mhqz6KHA/tOPBGVo6ELTHLiEicMnbYoEqcPuj4I8z8Dpj0ZeDd
+gJPccevk7PcUvy9fekkcA9FJ1RAuPh53Ts+DYjR1Qvx3dxvggkCDvU5oE4o0LX3M
+C0OtK+HJzznAA41hwYRw140Ias9roVSEv8Rbsq+AQ8fPdHQyYOqM1HWnmMhozYVt
+sC3LtUlQ6SJk8exK9T5EokSHGwCfgDgCzMs2vx5kZVsXT2YcwsMTZOHGBDtjyOSE
+W5jFc0D2aWHkdsPqrYcyp4sPrbl9J3AoKZ0vy6XRj7w/K0v3MnkPY4NKJe193J2V
+3JamOguNqOWE4s/Jb7l2yHq8e7YcXJQg5YMvEHukcpnt0buLkdo6oLZI8s4x1Hh/
+Wo6BsXTksjQgspRQiuyp7yMZWiwDPBTezyaM5yyHL8hfYW8hAHNp6gcBRDjUa7YG
+/xIDzKnbZhyOk2XeraTzT2+z1V/ItE3DYHCKYXUI/eAsmR+2LiUy0pn4L0sqCBEA
+MlmByisDlPElh0DOBkZ40X+Y2l6nZ5PKSsULS6uI1g5uiTeUuXSuBzGK5c8pytKM
+xfxiLf0x+20bo7bmrEvEsftWVy0v53vMhNEQl03Y
+&mdash;&ndash;END CERTIFICATE&mdash;&ndash;&rsquo; &gt; ~/elastic-ca.crt
+export CA_CERT_FILE=~/elastic-ca.crt
+echo &ldquo;==== Certificate : Subject ====&rdquo;
+openssl x509 -noout -text -in ${CA_CERT_FILE} | grep &lsquo;Subject:&rsquo;;
+echo &quot; &quot;
+kubectl create configmap elastic-ca-cert &ndash;from-file=${CA_CERT_FILE} &ndash;namespace=kube-system
+kubectl get configmap elastic-ca-cert
+}</p>
+<h3 id="edit-username--password--kibana-url--insecure-flag">Edit username &amp; password &amp; kibana url &amp; insecure flag</h3>
+<p>edit ds manifest</p>
+<pre tabindex="0"><code>            - name: FLEET_INSECURE
+              value: &#34;true&#34;
+            # Fleet Server URL to enroll the Elastic Agent into
+            # FLEET_URL can be found in Kibana, go to Management &gt; Fleet &gt; Settings
+            - name: FLEET_URL
+              value: &#34;https://10.10.51.31:8220&#34;
+            # Elasticsearch API key used to enroll Elastic Agents in Fleet (https://www.elastic.co/guide/en/fleet/current/fleet-enrollment-tokens.html#fleet-enrollment-tokens)
+            # If FLEET_ENROLLMENT_TOKEN is empty then KIBANA_HOST, KIBANA_FLEET_USERNAME, KIBANA_FLEET_PASSWORD are needed
+            - name: FLEET_ENROLLMENT_TOKEN
+              value: &#34;cS1yblFvd0JKSTFmNnVwWHRVSkg6TW5oa2hfWGtRZE84aUhuM0I0eGUxZw==&#34;
+            - name: KIBANA_HOST
+              value: &#34;http://10.10.51.31:5601/&#34;
+            # The basic authentication username used to connect to Kibana and retrieve a service_token to enable Fleet
+            - name: KIBANA_FLEET_USERNAME
+              value: &#34;elastic&#34;
+            # The basic authentication password used to connect to Kibana and retrieve a service_token to enable Fleet
+            - name: KIBANA_FLEET_PASSWORD
+              value: &#34;9H9o4-I1=c8SEykmLR8*&#34;
+</code></pre><pre tabindex="0"><code>      volumes:
+        - name: elastic-ca-cert
+          configMap:
+            name: elastic-ca-cert
+</code></pre><pre tabindex="0"><code>          volumeMounts:
+            - mountPath: /etc/ssl/certs/elastic-ca.crt
+              subPath: elastic-ca.crt
+              name: elastic-ca-cert
+</code></pre><hr>
+<h3 id="add-ca-cert-to-rhel">Add CA Cert to RHEL</h3>
+<p>{
+chmod 660 /tmp/http_ca.crt
+cp /tmp/http_ca.crt /etc/pki/ca-trust/source/anchors/
+cd /etc/pki/ca-trust/source/anchors/
+update-ca-trust enable
+update-ca-trust extract
+}</p>
+<hr>
+<p>{
+du -sh /var/log/pods
+find /var/log/pods/ -name &ldquo;*.log&rdquo; -exec cp /dev/null {} ;
+find /var/log/pods/ -name &ldquo;<em>log</em>&rdquo; -exec cp /dev/null {} ;
+find /var/log/pods/ -name &ldquo;<em>log</em>.gz&rdquo; -exec rm -f {} ;
+du -sh /var/log/pods
+}</p>
+<hr>
+<p>hey -d hello-gong -c 10 -z 10s http://log-debug:8080
+hey -D loadtest.txt -c 100 -z 5m  http://log-debug:8080</p>
+
+      </div>
+    </article>
+  </div>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://localhost:1313/" >
+    &copy;  My New Hugo Site 2024 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>
