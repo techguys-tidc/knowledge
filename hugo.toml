@@ -1,6 +1,6 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://techguys-tidc.github.io/knowledge/'
 languageCode = 'en-us'
-title = 'My New Hugo Site'
+title = 'Techguys knowledge base'
 #theme = 'hugo-theme-learn'
 theme = 'ananke'
 enableEmoji=true
