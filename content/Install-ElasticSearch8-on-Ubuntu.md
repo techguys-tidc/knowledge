@@ -1,3 +1,6 @@
++++
+title = 'Install Elasticsearch 8 on Ubuntu 22.04'
++++
 - [Install Elasticsearch Cluster on Ubuntu](#install-elasticsearch-cluster-on-ubuntu)
   - [Ref](#ref)
   - [Glossary](#glossary)
