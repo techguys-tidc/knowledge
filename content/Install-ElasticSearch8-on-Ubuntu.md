@@ -1,26 +1,32 @@
 +++
 title = 'Install Elasticsearch 8 on Ubuntu 22.04'
 +++
-- [Install Elasticsearch Cluster on Ubuntu](#install-elasticsearch-cluster-on-ubuntu)
-  - [Ref](#ref)
+- [Install lasticsearch Cluster on Ubuntu ( 1 Master , 4 data tier )](#install-lasticsearch-cluster-on-ubuntu--1-master--4-data-tier-)
+  - [Refereces](#refereces)
+  - [Useful Link](#useful-link)
   - [Glossary](#glossary)
-  - [Install Elasticsearch](#install-elasticsearch)
+  - [Install Prereq](#install-prereq)
     - [Setup hosts file](#setup-hosts-file)
+    - [Prepare Elastic Backup Repository (NFS)](#prepare-elastic-backup-repository-nfs)
+      - [Install NFS-Common on Ubuntu](#install-nfs-common-on-ubuntu)
+      - [Create /var/data/elasticsearch for elasticsearch backup](#create-vardataelasticsearch-for-elasticsearch-backup)
+      - [Mount nfs to /etc/fstab](#mount-nfs-to-etcfstab)
+  - [Install Elasticsearch ( Master Node )](#install-elasticsearch--master-node-)
     - [Add Elasticsearch 8 Repository](#add-elasticsearch-8-repository)
     - [Install Elastic search](#install-elastic-search)
-    - [Create /var/data](#create-vardata)
+    - [Change Owner /var/data/elasticsearch to elasticsearch](#change-owner-vardataelasticsearch-to-elasticsearch)
     - [Backup Elasticsearch yaml](#backup-elasticsearch-yaml)
     - [Select Node Role](#select-node-role)
       - [Master, data\_content, data\_hot](#master-data_content-data_hot)
     - [Start Elasticsearch](#start-elasticsearch)
     - [Reset Elasticsearch Password](#reset-elasticsearch-password)
     - [Test Curl, You know for search](#test-curl-you-know-for-search)
-  - [Join other Node](#join-other-node)
+  - [Install Elasticsearch ( Other Node eg. data node, ingest node )](#install-elasticsearch--other-node-eg-data-node-ingest-node-)
     - [Add Elasticsearch 8 Repository](#add-elasticsearch-8-repository-1)
     - [Install Elastic search](#install-elastic-search-1)
-    - [Create /var/data](#create-vardata-1)
+    - [Change Owner /var/data/elasticsearch to elasticsearch](#change-owner-vardataelasticsearch-to-elasticsearch-1)
     - [Generate Enrollment Token on Master Node](#generate-enrollment-token-on-master-node)
-    - [Reconfigure joinee node](#reconfigure-joinee-node)
+    - [Enrollment From Joinee Node](#enrollment-from-joinee-node)
     - [Select Node Role](#select-node-role-1)
       - [data\_warm](#data_warm)
       - [data\_cold](#data_cold)
@@ -31,6 +37,12 @@ title = 'Install Elasticsearch 8 on Ubuntu 22.04'
     - [Generate Kibana Token](#generate-kibana-token)
     - [Enroll](#enroll)
     - [Kibeana yaml , listen 0.0.0.0](#kibeana-yaml--listen-0000)
+  - [Kibana Dev Tools](#kibana-dev-tools)
+    - [Indices Name](#indices-name)
+    - [Get Node](#get-node)
+    - [Monitor](#monitor)
+    - [Insert Data](#insert-data)
+    - [Kibana Dev Tools](#kibana-dev-tools-1)
   - [Generate Fleet policy with correct url and port](#generate-fleet-policy-with-correct-url-and-port)
   - [Install Fleet Server](#install-fleet-server)
     - [Elastic Bug , Elastic agent use local cahced file](#elastic-bug--elastic-agent-use-local-cahced-file)
@@ -48,9 +60,9 @@ title = 'Install Elasticsearch 8 on Ubuntu 22.04'
 
 
 
-# Install Elasticsearch Cluster on Ubuntu
+# Install lasticsearch Cluster on Ubuntu ( 1 Master , 4 data tier )
 
-## Ref
+## Refereces
 
 [:page_with_curl: **Install**  Elasticsearch 8 on Ubuntu 22.04 LTS](https://blog.devops.dev/how-to-install-elastic-stack-on-ubuntu-22-04-lts-18c3d9120494)
 
@@ -60,6 +72,21 @@ title = 'Install Elasticsearch 8 on Ubuntu 22.04'
 
 [:mag: **Info** Kubenetes Monitoring](https://www.elastic.co/blog/kubernetes-cluster-metrics-logs-monitoring)
 
+## Useful Link
+
+[:link: ELK : Partially mounted index](https://www.elastic.co/guide/en/elasticsearch/reference/current/searchable-snapshots.html?fbclid=IwAR0qix2bkw-5zk8GbRhakWGrab2FYtt3croxwXWSr7SX-8b1yZt7oh_gHcU#partially-mounted)
+
+[:link: ELK : Searchable Snapshot ](https://opster.com/guides/elasticsearch/data-architecture/elasticsearch-searchable-snapshots/)
+
+[:link: ELK : Snapshot ](https://opster.com/analysis/elasticsearch-the-specified-location-should-start-with-a-repository-path-specified-by/?fbclid=IwAR3sLxb90WkqlPizvFX6YD_3AMH7NxOb7RiGvoeMsfu3NF5n07cKs8AilCg)
+
+[:link: ELK : Snapshot and Restore](https://www.elastic.co/blog/found-elasticsearch-snapshot-and-restore?fbclid=IwAR0L5JgP8-Me5X8-0HIqpgVOe9L9kVw2IXCaVBhbuFw7h9xOsUBBi4dyjas)
+
+[:link: ELK : How do Elasticsearch snapshots works](https://www.elastic.co/blog/how-do-incremental-snapshots-work?fbclid=IwAR07zwFsSDoV3y6dSmlI53l04gYbukrIppSTx83VA0qrLbxkkPimGkPG5y8)
+
+[:link: ELK : Backup Repository : S3](https://opster.com/guides/elasticsearch/how-tos/elasticsearch-snapshot/?fbclid=IwAR0NTWQdfFXv1xHRkareLn0f5o45SGXBuz1ANiHgOkUYXgt5hZAjTzlTNvM)
+
+[:link: ELK : Backup Repository : NFS](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-filesystem-repository.html)
 
 ## Glossary
 
@@ -84,7 +111,7 @@ c: cold data tier
 f: frozen data tier
 ```
 
-## Install Elasticsearch
+## Install Prereq
 
 ### Setup hosts file
 
@@ -97,6 +124,42 @@ echo "
 10.10.51.34     k-gong-elk-04" >> /etc/hosts
 }
 ```
+
+### Prepare Elastic Backup Repository (NFS)
+
+#### Install NFS-Common on Ubuntu 
+
+```
+{
+apt update
+apt install -y nfs-common
+}
+```
+
+#### Create /var/data/elasticsearch for elasticsearch backup
+
+```
+{
+mkdir -p /var/data/elasticsearch
+mkdir -p /var/data/elasticsearch/snapshots
+chown -R elasticsearch:elasticsearch /var/data/elasticsearch
+}
+```
+
+#### Mount nfs to /etc/fstab
+
+```
+{
+export NFS_IP=10.10.54.8
+export NFS_PATH=/var/nfs/gong-elasticsearch-snapshot
+export ELASTIC_SNAPSHOT_PATH=/var/data/elasticsearch/snapshots
+echo "${NFS_IP}:${NFS_PATH}   ${ELASTIC_SNAPSHOT_PATH}    nfs    defaults,soft    0 0" >> /etc/fstab
+mount -a
+}
+```
+
+## Install Elasticsearch ( Master Node )
+
 
 ### Add Elasticsearch 8 Repository
 
@@ -118,13 +181,11 @@ sudo apt-get install -y elasticsearch=8.12.2
 }
 ```
 
-### Create /var/data
+### Change Owner /var/data/elasticsearch to elasticsearch
 
 ```
 {
-mkdir -p /var/data/elasticsearch
-rm -rf /var/data/elasticsearch/*
-chown -R elasticsearch:elasticsearch /var/data
+chown -R elasticsearch:elasticsearch /var/data/elasticsearch
 }
 ```
 
@@ -217,7 +278,7 @@ curl -XGET --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PAS
 
 ---
 
-## Join other Node
+## Install Elasticsearch ( Other Node eg. data node, ingest node )
 
 ### Add Elasticsearch 8 Repository
 
@@ -239,18 +300,17 @@ sudo apt-get install -y elasticsearch=8.12.2
 }
 ```
 
-### Create /var/data
+### Change Owner /var/data/elasticsearch to elasticsearch
 
 ```
 {
-mkdir -p /var/data/elasticsearch
-rm -rf /var/data/elasticsearch/*
-chown -R elasticsearch:elasticsearch /var/data
+chown -R elasticsearch:elasticsearch /var/data/elasticsearch
 }
 ```
 
-
 ### Generate Enrollment Token on Master Node
+
+This step must be done on Master node
 
 ```
 {
@@ -258,7 +318,9 @@ chown -R elasticsearch:elasticsearch /var/data
 }
 ```
 
-### Reconfigure joinee node
+### Enrollment From Joinee Node
+
+This step must be done on Joinee node
 
 ```
 {
@@ -449,6 +511,379 @@ cd /usr/share/kibana/
 sed -i -Ee '/^#server.host:/s/^.*$/server.host: 0.0.0.0/' /etc/kibana/kibana.yml
 sudo systemctl restart kibana
 }
+```
+
+---
+
+## Kibana Dev Tools
+
+### Indices Name
+
+```
+{
+echo "xXx
+RFGcXL_EQ2eoP8NzvLo87A
+vTtRO_4mSvmr-LHmw7nheQ
+VYPwuajsSreKQ2th3Y7Ihw
+nIZy_RGUQPWCXv5zUoVYLA
+xXx" > /tmp/indices_name
+find /var/data/elasticsearch -maxdepth 3 -type d | grep -f /tmp/indices_name
+}
+```
+
+### Get Node
+```
+{
+export ELASTIC_PASSWORD=password
+curl -XGET --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200/_cat/nodes?pretty
+}
+```
+
+### Monitor
+```
+{
+export ELASTIC_PASSWORD=password
+while [ true ] ; do
+echo "==== $(date) ==========="
+curl -XGET --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200/_cat/shards/orders*\?v\&s=index\&h=index,node
+sleep 30
+done
+}
+```
+
+### Insert Data
+```
+{
+export ELASTIC_PASSWORD=password
+for ((i=1; i<=999999; i++))
+do
+echo "{\"@timestamp\":\"$(date +%s)\",\"client_id\":\"${i}\"}"
+curl -XPOST -H "Content-Type: application/json" -d "{\"@timestamp\":\"$(date +%s)\",\"client_id\":\"${i}\"}" --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200/orders/_doc/
+sleep 5
+done
+}
+```
+
+
+### Kibana Dev Tools
+
+
+```
+GET _cat/shards/orders*?v&s=index&h=index,node
+
+
+GET _cat/indices/orders*?v&s=index&h=index,uuid
+GET _cat/indices/orders*?v&s=index&h=uuid
+
+PUT _index_template/orders
+{
+  "index_patterns": ["orders-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "client_id": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
+
+# Today
+PUT orders-20211020
+
+GET orders-20211020
+
+DELETE orders-20211020
+
+# Last 30 days
+PUT orders-20211010
+
+GET orders-20211010
+
+DELETE orders-20211010
+
+# Last 365 days
+PUT orders-20210601
+
+GET orders-20210601
+
+DELETE orders-20210601
+
+# Older than 365 days
+PUT orders-20200601
+
+GET orders-20200601
+
+DELETE orders-20200601
+
+DELETE orders-20200601t_recovered
+
+GET orders-20200601/_search
+
+POST orders-20200601/_doc
+{
+    "msg" : "should be frozen"
+}
+
+# ======================================
+# Migrate Index
+# ======================================
+
+PUT orders-20211020/_settings
+{
+  "index.routing.allocation.include._tier_preference": "data_hot"
+}
+ 
+PUT orders-20211010/_settings
+{
+  "index.routing.allocation.include._tier_preference": "data_warm"
+}
+ 
+PUT orders-20210601/_settings
+{
+  "index.routing.allocation.include._tier_preference": "data_cold"
+}
+
+PUT orders-20200601/_settings
+{
+  "index.routing.allocation.include._tier_preference": "data_frozen"
+}
+
+
+# ======================================
+# Create NFS Backup Repositories
+# ======================================
+
+# chown -R elasticsearch:elasticsearch /var/data/elasticsearch/snapshots
+PUT _snapshot/orders-snapshots-repository
+{
+  "type": "fs",
+  "settings": {
+    "location": "/var/data/elasticsearch/snapshots"
+  }
+}
+
+DELETE _snapshot/orders-snapshots-repository
+
+# ======================================
+# Create a snapshot
+# ======================================
+
+PUT _snapshot/orders-snapshots-repository/snapshot-orders-20200601-01
+{
+  "indices": "orders-20200601"
+}
+
+DELETE orders-20200601
+
+POST _snapshot/orders-snapshots-repository/snapshot-orders-20200601-01/_restore
+
+# ======================================
+# Mount as searchable snapshot
+# ======================================
+
+POST /_snapshot/orders-snapshots-repository/snapshot-orders-20200601-01/_mount?wait_for_completion=true
+{
+  "index": "orders-20200601",
+  "renamed_index": "orders-20200601t_recovered",
+  "index_settings": { 
+    "index.number_of_replicas": 0,
+    "index.routing.allocation.include._tier_preference": "data_frozen"
+  }
+}
+
+POST /_snapshot/orders-snapshots-repository/snapshot-orders-20200601-01/_mount?storage=shared_cache
+{
+  "index": "orders-20200601",
+  "renamed_index": "orders-20200601t_recovered",
+  "index_settings": { 
+    "index.number_of_replicas": 0,
+    "index.routing.allocation.include._tier_preference": "data_frozen"
+  }
+}
+
+# ====================================================
+# orders slm (snapshot lifecycle management)
+# ====================================================
+
+PUT _slm/policy/orders-snapshot-policy
+{
+  "schedule": "0 */15 * * * ?", 
+  "name": "<orders-snapshot-{now/d}>", 
+  "repository": "orders-snapshots-repository", 
+  "config": { 
+    "indices": ["orders"] 
+  },
+  "retention": { 
+    "expire_after": "30d", 
+    "min_count": 5, 
+    "max_count": 50 
+  }
+}
+
+# ====================================================
+# Enable Kibana Trial 30 Days
+# ====================================================
+# Note : https://www.elastic.co/subscriptions
+GET _license
+
+POST _license/start_trial?acknowledge=true
+
+# ====================================================
+# orders ilm (index lifecycle management)
+# ====================================================
+
+PUT _ilm/policy/orders-lifecycle-policy
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": {
+          "rollover": {
+            "max_age": "30s"
+          }
+        }
+      },
+      "warm": {
+        "min_age": "1m",
+        "actions": {}
+      },
+      "cold": {
+        "min_age": "2m",
+        "actions": {}
+      },
+      "frozen": {
+        "min_age": "3m",
+        "actions": {
+          "searchable_snapshot": {
+            "snapshot_repository": "orders-snapshots-repository"
+          }
+        }
+      },
+      "delete": {
+        "min_age": "3m",
+        "actions": {
+          "wait_for_snapshot": {
+            "policy": "orders-snapshot-policy"
+          },
+          "delete": {}
+        }
+      }
+    }
+  }
+}
+
+# ==============================================================
+# By default ILM checks every 10 minutes, reduce to 15 sec
+# ==============================================================
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "indices.lifecycle.poll_interval": "15s" 
+  }
+}
+
+PUT /_cluster/settings
+{
+"transient": {"indices.lifecycle.poll_interval": "15s"}
+}
+
+GET _cluster/settings
+
+# ==============================================================
+# Assign ILM
+# ==============================================================
+
+PUT orders-20211020/_settings
+{
+  "index.lifecycle.name": "orders-lifecycle-policy"
+}
+
+# ==============================================================
+# Create Index Template Components, Type : Settings
+# ==============================================================
+PUT _component_template/orders-settings
+{
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "orders-lifecycle-policy",
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    }
+  },
+  "_meta": {
+    "description": "Settings for orders indices"
+  }
+}
+ 
+# ==============================================================
+# Create Index Template Components, Type : Mapping
+# ==============================================================
+PUT _component_template/orders-mappings
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "date_optional_time||epoch_millis"
+        },
+        "client_id": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "date"
+        }
+      }
+    }
+  },
+  "_meta": {
+    "description": "Mappings for orders indices"
+  }
+}
+
+# ==============================================================
+# Create Index Template , Combine Setting & Mapping 
+# ==============================================================
+PUT _index_template/orders
+{
+  "index_patterns": ["orders"],
+  "data_stream": { },
+  "composed_of": [ "orders-settings", "orders-mappings" ],
+  "priority": 500,
+  "_meta": {
+    "description": "Template for orders data stream"
+  }
+}
+
+# ==============================================================
+# Shell to Monitor
+# ==============================================================
+# clear ; watch -d curl -s 'http://localhost:9200/_cat/shards/orders*\?v\&s=index\&h=index,node'
+
+
+# ==============================================================
+# Create Data Stream
+# ==============================================================
+PUT _data_stream/orders
+
+POST orders/_doc/
+{"@timestamp":"1710073862","client_id":"1"}
+
+DELETE _data_stream/orders
+
+GET orders/_search
+
+POST /orders/_rollover
 ```
 
 ---
