@@ -571,7 +571,6 @@ done
 ```
 GET _cat/shards/orders*?v&s=index&h=index,node
 
-
 GET _cat/indices/orders*?v&s=index&h=index,uuid
 GET _cat/indices/orders*?v&s=index&h=uuid
 
@@ -729,6 +728,8 @@ PUT _slm/policy/orders-snapshot-policy
   }
 }
 
+DELETE _slm/policy/orders-snapshot-policy
+
 # ====================================================
 # Enable Kibana Trial 30 Days
 # ====================================================
@@ -781,6 +782,8 @@ PUT _ilm/policy/orders-lifecycle-policy
   }
 }
 
+DELETE _ilm/policy/orders-lifecycle-policy
+
 # ==============================================================
 # By default ILM checks every 10 minutes, reduce to 15 sec
 # ==============================================================
@@ -824,6 +827,8 @@ PUT _component_template/orders-settings
     "description": "Settings for orders indices"
   }
 }
+
+DELETE _component_template/orders-settings
  
 # ==============================================================
 # Create Index Template Components, Type : Mapping
@@ -851,6 +856,8 @@ PUT _component_template/orders-mappings
   }
 }
 
+DELETE _component_template/orders-mappings
+
 # ==============================================================
 # Create Index Template , Combine Setting & Mapping 
 # ==============================================================
@@ -864,6 +871,8 @@ PUT _index_template/orders
     "description": "Template for orders data stream"
   }
 }
+
+DELETE _index_template/orders
 
 # ==============================================================
 # Shell to Monitor
