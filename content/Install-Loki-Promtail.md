@@ -16,7 +16,8 @@ title = 'Install Loki and Promtail on Ubuntu 22.04'
   - [Prepare Confinguration](#prepare-confinguration)
   - [Create Services](#create-services-1)
   - [Start Services](#start-services-1)
-  - [Experiment Confinguration](#experiment-confinguration)
+  - [Experiment Configuration](#experiment-configuration)
+    - [Extrace Regex environment1 \& environment2](#extrace-regex-environment1--environment2)
 
 
 # References 
@@ -220,8 +221,10 @@ sudo systemctl enable promtail.service
 
 ---
 
+## Experiment Configuration
+### Extrace Regex environment1 & environment2
 
-## Experiment Confinguration
+regexr : https://regex101.com/r/0mnhGs/1
 
 ```
 {
@@ -246,23 +249,18 @@ scrape_configs:
           - localhost
         labels:
           job: varlogs
-          __path__: /var/log/*log
+          __path__: /var/log/gong.log
     pipeline_stages:
       - regex:
-          expression: "${ESCAPED_REGEX_TIME}"
-      - timestamp:
-          source: time
-          format: Unix
-
-  - job_name: nginx
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: nginx
-          __path__: /var/log/nginx/*.log" > /etc/promtail/promtail-config.yaml
+          expression: '(?P<environment>.*)-(?P<environment2>.*).*'
+      - labels:
+          environment:
+          environment2:" > /home/nattawat.ujj/promtail-config.yaml
 systemctl restart promtail
 sleep 3
 systemctl status promtail
+echo "GONG1-$(date +%Y%m%d.%H:%M:%S)" >> /var/log/gong.log
 }
 ```
+
+
