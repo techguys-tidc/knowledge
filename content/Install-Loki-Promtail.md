@@ -1,5 +1,5 @@
 +++
-title = 'Install Elasticsearch 8 on Ubuntu 22.04'
+title = 'Install Loki and Promtail on Ubuntu 22.04'
 +++
 
 - [References](#references)
