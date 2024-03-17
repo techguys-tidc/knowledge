@@ -86,6 +86,8 @@ title = 'How to write markdown'
 
 [:arrow_double_down: Markdown : Footnotes](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-footnotes)
 
+[:fish: Markdown : Mermaid Diagram Preview](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid)
+
 ## Markdown Drive Sync & Git Storage
 
 [:tophat: Google Drive Sync](https://www.google.com/drive/download/)
