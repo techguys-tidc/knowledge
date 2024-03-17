@@ -23,20 +23,51 @@ title = 'How to write markdown'
   - [\[\>\] Block Quotes](#-block-quotes)
     - [Code](#code-2)
     - [Result](#result-2)
-  - [\[\*\*\] Bold Text](#-bold-text)
+  - [\[\*\] Italic Text](#-italic-text)
     - [Code](#code-3)
     - [Result](#result-3)
+  - [\[\*\*\] Bold Text](#-bold-text)
+    - [Code](#code-4)
+    - [Result](#result-4)
+  - [\[~~\] StrikeThrough](#-strikethrough)
+    - [Code](#code-5)
+    - [Result](#result-5)
   - [\[\`\`\`\] Code Blocks](#-code-blocks)
     - [Go Lang](#go-lang)
-      - [Code](#code-4)
-      - [Result](#result-4)
+      - [Code](#code-6)
+      - [Result](#result-6)
     - [Java](#java)
-      - [Code](#code-5)
-      - [Result](#result-5)
+      - [Code](#code-7)
+      - [Result](#result-7)
+  - [\[---\] Title](#----title)
+    - [Code](#code-8)
+    - [Result](#result-8)
+  - [Title](#title)
+  - [\[\*\] Unorder List](#-unorder-list)
+    - [Code](#code-9)
+    - [Result](#result-9)
+  - [\[1\] Number List](#1-number-list)
+    - [Code](#code-10)
+    - [Result](#result-10)
+  - [\[|---|\] Table](#----table)
+    - [Code](#code-11)
+    - [Result](#result-11)
   - [\[:emoji:\] Emoji](#emoji-emoji)
-    - [Code](#code-6)
-    - [Result](#result-6)
-- [Body](#body)
+    - [Code](#code-12)
+    - [Result](#result-12)
+  - [\[bracket\] Link](#bracket-link)
+    - [Image](#image)
+      - [Code](#code-13)
+      - [Result](#result-13)
+    - [Base64 Image](#base64-image)
+      - [Code](#code-14)
+      - [Result](#result-14)
+    - [URL Link](#url-link)
+      - [Code](#code-15)
+      - [Result](#result-15)
+  - [\[mermaid\] Diagram](#mermaid-diagram)
+    - [Code](#code-16)
+    - [Result](#result-16)
 
 
 # Ref
@@ -63,9 +94,13 @@ title = 'How to write markdown'
 
 # Useful Links
 
+[:ok_woman: Markdown Online Preview](https://markdownlivepreview.com/)
+
 [:blush: Emoji - Preview](https://gist.github.com/rxaviers/7360908)
 
 [:zap: Wiki.js markdown example](https://github.com/requarks/wiki-docs/blob/master/editors/markdown.md)
+
+[:cyclone: Base64 Image Gen](https://yulvil.github.io/gopherjs/02/)
 
 
 # Markdown
@@ -115,15 +150,38 @@ Refer to Sun[^1] Moon[^2]
 ### Result
 > ssh root@192.168.1.1
 
+## [*] Italic Text
+
+### Code
+```markdown
+*Wolfgang Amadeus Mozart* was born on 27 January 1756
+```
+
+### Result
+*Wolfgang Amadeus Mozart* was born on 27 January 1756
+
 ## [**] Bold Text
 
 ### Code
-```js
+```markdown
 Wolfgang Amadeus **Mozart** was born on 27 January 1756
 ```
 
 ### Result
 Wolfgang Amadeus **Mozart** was born on 27 January 1756
+
+
+
+## [~~] StrikeThrough
+
+### Code
+```markdown
+Wolfgang Amadeus Mozart was born on ~~1 Junuary 2024~~ 27 January 1756
+```
+
+### Result
+Wolfgang Amadeus Mozart was born on ~~1 Junuary 2024~~ 27 January 1756
+
 
 ## [```] Code Blocks
 
@@ -173,6 +231,81 @@ public class HelloWorld {
 }
 ```
 
+## [---] Title
+
+### Code
+
+```markdown
+Title
+---
+Desc
+```
+
+### Result
+
+Title
+---
+Desc
+
+## [*] Unorder List
+
+
+### Code
+
+```markdown
+* Item 1
+* Item 2
+* Item 2a
+* Item 2b
+```
+
+### Result
+
+* Item 1
+* Item 2
+* Item 2a
+* Item 2b
+
+## [1] Number List
+
+### Code
+
+```markdown
+1. Item 1
+2. Item 2
+3. Item 3
+    1. Item 3a
+    2. Item 3b
+```
+
+### Result
+1. Item 1
+2. Item 2
+3. Item 3
+    1. Item 3a
+    2. Item 3b
+
+
+## [|---|] Table
+
+### Code
+
+```markdown
+| id | name | surname |
+|---|---|---|
+| 1 | apple | watch |
+| 2 | bee | hive |
+| 3 | cat | me |
+```
+
+### Result
+
+| id | name | surname |
+|---|---|---|
+| 1 | apple | watch |
+| 2 | bee | hive |
+| 3 | cat | me |
+
 ## [:emoji:] Emoji
 
 ### Code
@@ -184,68 +317,68 @@ This is :apple: :watch:
 ### Result
 This is :apple: :watch:
 
-# Body
+## [bracket] Link
 
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
-sdf
-<br>
+### Image 
+
+#### Code
+```markdown
+![This is an alt text.](https://markdownlivepreview.com/image/sample.webp "This is a sample image.")
+```
+
+#### Result
+![This is an alt text.](https://markdownlivepreview.com/image/sample.webp "This is a sample image.")
+
+### Base64 Image
+
+#### Code
+```markdown
+![MyBase64Image](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC
+```
+
+#### Result
+![MyBase64Image](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC
+)
+
+
+
+
+### URL Link
+#### Code
+
+```markdown
+[Click here to go to somewhere else](https://www.google.com)
+```
+
+#### Result
+[Click here to go to somewhere else](https://www.google.com)
+
+
+## [mermaid] Diagram
+
+### Code
+
+````
+```mermaid
+  graph TD;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
+```
+````
+
+### Result
+
+```mermaid
+  graph TD;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
+```
+
+
 
 [^1]: Sun : The Sun is the star at the center of the Solar System.
 [^2]: Moon : The Moon is Earth's only natural satellite.
