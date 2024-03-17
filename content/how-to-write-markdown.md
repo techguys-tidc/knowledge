@@ -68,6 +68,8 @@ title = 'How to write markdown'
   - [\[mermaid\] Diagram](#mermaid-diagram)
     - [Code](#code-16)
     - [Result](#result-16)
+    - [Code](#code-17)
+    - [Result](#result-17)
 
 
 # Ref
@@ -378,6 +380,38 @@ This is :apple: :watch:
       A-->C;
       B-->D;
       C-->D;
+```
+
+### Code
+
+````
+```mermaid
+sequenceDiagram
+    participant dotcom
+    participant iframe
+    participant viewscreen
+    dotcom->>iframe: loads html w/ iframe url
+    iframe->>viewscreen: request template
+    viewscreen->>iframe: html & javascript
+    iframe->>dotcom: iframe ready
+    dotcom->>iframe: set mermaid data on iframe
+    iframe->>iframe: render mermaid
+```
+````
+
+### Result
+
+```mermaid
+sequenceDiagram
+    participant dotcom
+    participant iframe
+    participant viewscreen
+    dotcom->>iframe: loads html w/ iframe url
+    iframe->>viewscreen: request template
+    viewscreen->>iframe: html & javascript
+    iframe->>dotcom: iframe ready
+    dotcom->>iframe: set mermaid data on iframe
+    iframe->>iframe: render mermaid
 ```
 
 
