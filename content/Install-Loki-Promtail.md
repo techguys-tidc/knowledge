@@ -9,6 +9,7 @@ title = 'Install Loki and Promtail on Ubuntu 22.04'
 - [Install Loki](#install-loki)
   - [Install Loki](#install-loki-1)
   - [Prepare Loki Configuration](#prepare-loki-configuration)
+  - [Prepare Loki Configuration ( max\_outstanding\_per\_tenant)](#prepare-loki-configuration--max_outstanding_per_tenant)
   - [Create Services](#create-services)
   - [Start Services](#start-services)
 - [Install Promtail](#install-promtail)
@@ -98,6 +99,59 @@ ruler:
 sudo chown -R loki: /etc/loki
 }
 ```
+
+
+## Prepare Loki Configuration ( max_outstanding_per_tenant)
+
+```
+{
+sudo useradd --system loki
+sudo mkdir -p /etc/loki /etc/loki/logs
+echo "auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+query_range:
+  split_queries_by_interval: 0
+  parallelise_shardable_queries: false
+
+querier:
+  max_concurrent: 2048
+
+frontend:
+  max_outstanding_per_tenant: 4096
+  compress_responses: true
+
+common:
+  path_prefix: /etc/loki
+  storage:
+    filesystem:
+      chunks_directory: /etc/loki/chunks
+      rules_directory: /etc/loki/rules
+  replication_factor: 1
+  ring:
+    instance_addr: 0.0.0.0
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+ruler:
+  alertmanager_url: http://localhost:9093">/etc/loki/loki-local-config.yaml
+sudo chown -R loki: /etc/loki
+}
+```
+
 
 ## Create Services
 
