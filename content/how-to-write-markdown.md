@@ -40,36 +40,40 @@ title = 'How to write markdown'
       - [Code](#code-7)
       - [Result](#result-7)
   - [\[---\] Title](#----title)
-    - [Code](#code-8)
-    - [Result](#result-8)
-  - [Title](#title)
+    - [Title](#title)
+      - [Code](#code-8)
+      - [Result](#result-8)
+  - [Title](#title-1)
+    - [Horizontal Line](#horizontal-line)
+      - [Code](#code-9)
+      - [Result](#result-9)
   - [\[\*\] Unorder List](#-unorder-list)
-    - [Code](#code-9)
-    - [Result](#result-9)
-  - [\[1\] Number List](#1-number-list)
     - [Code](#code-10)
     - [Result](#result-10)
-  - [\[|---|\] Table](#----table)
+  - [\[1\] Number List](#1-number-list)
     - [Code](#code-11)
     - [Result](#result-11)
-  - [\[:emoji:\] Emoji](#emoji-emoji)
+  - [\[|---|\] Table](#----table)
     - [Code](#code-12)
     - [Result](#result-12)
+  - [\[:emoji:\] Emoji](#emoji-emoji)
+    - [Code](#code-13)
+    - [Result](#result-13)
   - [\[bracket\] Link](#bracket-link)
     - [Image](#image)
-      - [Code](#code-13)
-      - [Result](#result-13)
-    - [Base64 Image](#base64-image)
       - [Code](#code-14)
       - [Result](#result-14)
-    - [URL Link](#url-link)
+    - [Base64 Image](#base64-image)
       - [Code](#code-15)
       - [Result](#result-15)
+    - [URL Link](#url-link)
+      - [Code](#code-16)
+      - [Result](#result-16)
   - [\[mermaid\] Diagram](#mermaid-diagram)
-    - [Code](#code-16)
-    - [Result](#result-16)
     - [Code](#code-17)
     - [Result](#result-17)
+    - [Code](#code-18)
+    - [Result](#result-18)
 
 
 # Ref
@@ -237,7 +241,9 @@ public class HelloWorld {
 
 ## [---] Title
 
-### Code
+### Title
+
+#### Code
 
 ```markdown
 Title
@@ -245,11 +251,34 @@ Title
 Desc
 ```
 
-### Result
+#### Result
 
 Title
 ---
 Desc
+
+
+### Horizontal Line
+
+#### Code
+
+```markdown
+Title
+
+---
+
+Desc
+```
+
+#### Result
+
+Title
+
+---
+
+Desc
+
+
 
 ## [*] Unorder List
 
