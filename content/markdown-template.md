@@ -1,5 +1,5 @@
 +++
-title = 'Sent-PFSense-to-rsyslog-promtail-loki'
+title = 'Markdown Template'
 +++
 
 - [References](#references)
