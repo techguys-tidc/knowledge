@@ -1,4 +1,6 @@
-+++ title = 'Setting MariaDB Replication' +++
++++ 
+title = 'Setting MariaDB Replication' 
++++
 - [MariaDB Replication](#mariadb-replication)
   - [Master \& Replica](#master--replica)
   - [Master](#master)
