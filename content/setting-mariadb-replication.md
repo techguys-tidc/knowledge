@@ -106,3 +106,17 @@ start slave;
 show slave status \G
 exit
 ```
+
+## Switch master to Slave
+  1. old slave
+```
+sudo mariadb
+stop slave;
+reset slave;
+```
+  2. old master
+```
+sudo mariadb
+change master to master_host='10.10.60.6', master_port=3306, master_user='repl', master_password='password', master_connect_retry=10, master_use_gtid=current_pos;
+start slave;
+```
