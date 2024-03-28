@@ -113,4 +113,4 @@ View Captured Conversations
 
 Open dump file in latest wireshark version
 
-![MyBase64Image](/assets/images/tcpdump-wireshark-win2003/08_ExportCSV.png.png?raw=true)
+![MyBase64Image](/assets/images/tcpdump-wireshark-win2003/08_ExportCSV.png?raw=true)
