@@ -13,3 +13,12 @@ title = 'DUM'
 # Step to Generate Report
 
 ## Identify IP Adress & Interface Name
+
+Get IP Address & Interface Name from Windows Connections
+
+| Type | Desc |
+|---|---|
+| Interface Name | Intel(R) PRO/1000 MT Network Connection |
+| IP Address | 10.10.51.43 |
+
+![MyBase64Image1](images/tcpdump-wireshark-win2003/01_Get_Interface_IP.png?raw=true)
