@@ -129,3 +129,11 @@ export INFLUX_TOKEN=qF2WEr9pzW3HrTSSv4uT8sbk0Ibb5IVIj8alT22mjqRSNRmLrqwi1r_zOOSG
 telegraf --config http://10.10.51.42:8086/api/v2/telegrafs/0cc939f148893000
 }
 ```
+
+## XML Parser
+
+https://www.influxdata.com/blog/how-to-parse-your-xml-data-with-telegraf/#heading3
+
+วิธี ingest xml ด้วย telegraf : https://www.influxdata.com/blog/how-to-parse-your-xml-data-with-telegraf/
+
+plugin ส่ง data จาก telegraf ไปหา loki  : https://docs.influxdata.com/telegraf/v1/plugins/#output-loki 

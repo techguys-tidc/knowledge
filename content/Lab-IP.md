@@ -9,6 +9,8 @@ title = 'Lab IP'
   - [LGTM](#lgtm)
     - [Grafana](#grafana)
     - [Loki](#loki)
+  - [Prometheus](#prometheus)
+    - [Prometheus](#prometheus-1)
   - [InfluxDB](#influxdb)
     - [InfluxDB](#influxdb-1)
 
@@ -35,15 +37,26 @@ Append Host Files
 
 | Desc | Value |
 |---|---|
-| URL | http://10.10.51.41:3000/ |
+| URL | http://10.10.51.41 |
 | Username | admin |
-| Password | password |
+| Password | n/a |
+
+Password not shown
+
 
 ### Loki
 
 | Desc | Value |
 |---|---|
 | URL | http://10.10.51.41:3100/loki/api/v1/push |
+
+## Prometheus
+
+### Prometheus
+
+| Desc | Value |
+|---|---|
+| URL | http://10.10.51.41:9090/ |
 
 ## InfluxDB
 
