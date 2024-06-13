@@ -3,6 +3,9 @@
 title = 'Wireshark-TCPDUMP-Windows2003'
 +++
 - [Wireshark Download Link](#wireshark-download-link)
+- [Useful Link](#useful-link)
+- [ASCII - Diagram](#ascii---diagram)
+- [Mermaid Diagram](#mermaid-diagram)
 - [Step to Generate Report](#step-to-generate-report)
   - [Identify IP Adress \& Interface Name](#identify-ip-adress--interface-name)
   - [Install Wireshark](#install-wireshark)
@@ -17,6 +20,136 @@ title = 'Wireshark-TCPDUMP-Windows2003'
 # Wireshark Download Link
 
 [:link: Wireshark Archived Download Link](https://2.na.dl.wireshark.org/win32/all-versions/)
+
+# Useful Link
+
+[:link: How the Internet Works, Part II - Layers](https://vahid.blog/post/2020-12-21-how-the-internet-works-part-ii-layers/)
+
+[:link: How the Internet Works, Part III - Reliability and Security](https://vahid.blog/post/2020-12-24-how-the-internet-works-part-iii-reliability-and-security/)
+
+# ASCII - Diagram 
+
+```
+ ________________            ________________
+| Application    |          | Application    |
+| Layer (Layer 7)|          | Layer (Layer 7)|
+|   Port: 80     |          |   Port: 443    |
+|________________|          |________________|
+        |                            |
+        v                            v
+ ________________            ________________
+| Presentation   |          | Presentation   |
+| Layer (Layer 6)|          | Layer (Layer 6)|
+|________________|          |________________|
+        |                            |
+        v                            v
+ ________________            ________________
+| Session        |          | Session        |
+| Layer (Layer 5)|          | Layer (Layer 5)|
+|________________|          |________________|
+        |                            |
+        v                            v
+ ________________            ________________
+| Transport      |          | Transport      |
+| Layer (Layer 4)|          | Layer (Layer 4)|
+|   TCP Port: 5000 |         |  TCP Port: 8080|
+|________________|          |________________|
+        |                            |
+        v                            v
+ ________________            ________________
+| Network        |          | Network        |
+| Layer (Layer 3)|          | Layer (Layer 3)|
+|   192.168.1.2  |          |   192.168.1.3  |
+|________________|          |________________|
+        |                            |
+        v                            v
+ ________________            ________________
+| Data Link      |          | Data Link      |
+| Layer (Layer 2)|          | Layer (Layer 2)|
+|  MAC: 00:11:22:33:44:55  |  MAC: 66:77:88:99:AA:BB  |
+|________________|          |________________|
+        |                            |
+        v                            v
+ ________________            ________________
+| Physical       |          | Physical       |
+| Layer (Layer 1)|          | Layer (Layer 1)|
+|________________|          |________________|
+        |                            |
+        v                            v
+     Computer A                    Computer B
+```
+
+# Mermaid Diagram
+
+```mermaid
+graph TD;
+    subgraph "Nginx Server";
+        subgraph "Application Layer (Layer 7)";
+            AppA[Nginx]
+        end
+        subgraph "Presentation Layer (Layer 6)";
+          PresentationA["-"]
+        end
+        subgraph "Session Layer (Layer 5)";
+          SessionA["-"]
+        end
+        subgraph "Transport Layer (Layer 4)";
+            TransA[TCP Port: 80]
+        end
+        subgraph "Network Layer (Layer 3)";
+            IP_A[192.168.1.2]
+        end
+        subgraph "Data Link Layer (Layer 2)";
+            MAC_A["MAC: 00:11:22:33:44:55"]
+        end
+        subgraph "Physical Layer (Layer 1)";
+          DataLinkA["-"]
+        end
+    end
+    
+    subgraph "Client";
+        subgraph "Application Layer (Layer 7)";
+            AppB[Client]
+        end
+        subgraph "Presentation Layer (Layer 6)";
+            PresentationB["-"]
+        end
+        subgraph "Session Layer (Layer 5)";
+            SessionB["-"]
+        end
+        subgraph "Transport Layer (Layer 4)";
+            TransB[TCP Port: 5000]
+        end
+        subgraph "Network Layer (Layer 3)";
+            IP_B[192.168.1.3]
+        end
+        subgraph "Data Link Layer (Layer 2)";
+            MAC_B["MAC: 66:77:88:99:AA:BB"]
+        end
+        subgraph "Physical Layer (Layer 1)";
+          DataLinkB["-"]
+        end
+    end
+
+    AppA --> PresentationA;
+    PresentationA --> SessionA;
+    SessionA --> TransA;
+    TransA --> IP_A;
+    IP_A --> MAC_A;
+    MAC_A --> DataLinkA;
+
+
+    AppB --> PresentationB;
+    PresentationB --> SessionB;
+    SessionB --> TransB;
+    TransB --> IP_B;
+    IP_B --> MAC_B;
+    MAC_B --> DataLinkB;
+
+    
+
+
+```
 
 # Step to Generate Report
 
