@@ -30,53 +30,63 @@ title = 'Wireshark-TCPDUMP-Windows2003'
 # ASCII - Diagram 
 
 ```
- ________________            ________________
-| Application    |          | Application    |
-| Layer (Layer 7)|          | Layer (Layer 7)|
-|   Port: 80     |          |   Port: 443    |
-|________________|          |________________|
-        |                            |
-        v                            v
- ________________            ________________
-| Presentation   |          | Presentation   |
-| Layer (Layer 6)|          | Layer (Layer 6)|
-|________________|          |________________|
-        |                            |
-        v                            v
- ________________            ________________
-| Session        |          | Session        |
-| Layer (Layer 5)|          | Layer (Layer 5)|
-|________________|          |________________|
-        |                            |
-        v                            v
- ________________            ________________
-| Transport      |          | Transport      |
-| Layer (Layer 4)|          | Layer (Layer 4)|
-|   TCP Port: 5000 |         |  TCP Port: 8080|
-|________________|          |________________|
-        |                            |
-        v                            v
- ________________            ________________
-| Network        |          | Network        |
-| Layer (Layer 3)|          | Layer (Layer 3)|
-|   192.168.1.2  |          |   192.168.1.3  |
-|________________|          |________________|
-        |                            |
-        v                            v
- ________________            ________________
-| Data Link      |          | Data Link      |
-| Layer (Layer 2)|          | Layer (Layer 2)|
-|  MAC: 00:11:22:33:44:55  |  MAC: 66:77:88:99:AA:BB  |
-|________________|          |________________|
-        |                            |
-        v                            v
- ________________            ________________
-| Physical       |          | Physical       |
-| Layer (Layer 1)|          | Layer (Layer 1)|
-|________________|          |________________|
-        |                            |
-        v                            v
-     Computer A                    Computer B
+  +-----------------------+                +-----------------------+
+  |    Application        |                |    Application        |
+  |    Layer (Layer 7)    |                |    Layer (Layer 7)    |
+  |    Client              |                |    NGINX Server       |
+  +-----------------------+                +-----------------------+
+         |                                            |
+         v                                            v
+  +-----------------------+                +-----------------------+
+  |    Presentation       |                |    Presentation       |
+  |    Layer (Layer 6)    |                |    Layer (Layer 6)    |
+  |    (Data Formatting)  |                |    (Data Formatting)  |
+  +-----------------------+                +-----------------------+
+         |                                            |
+         v                                            v
+  +-----------------------+                +-----------------------+
+  |    Session            |                |    Session            |
+  |    Layer (Layer 5)    |                |    Layer (Layer 5)    |
+  |    (Establishing,     |                |    (Establishing,     |
+  |    maintaining, and   |                |    maintaining, and   |
+  |    terminating        |                |    terminating        |
+  |    connections)       |                |    connections)       |
+  +-----------------------+                +-----------------------+
+         |                                            |
+         v                                            v
+  +-----------------------+                +-----------------------+
+  |    Transport          |                |    Transport          |
+  |    Layer (Layer 4)    |                |    Layer (Layer 4)    |
+  |    (Segmentation/     |                |    (Segmentation/     |
+  |    Reassembly,        |                |    Reassembly,        |
+  |    Flow control,      |                |    Flow control,      |
+  |    Error detection,   |                |    Error detection,   |
+  |    Reliable delivery) |                |    Reliable delivery) |
+  +-----------------------+                +-----------------------+
+         |                                           |
+         v                                           v
+  +-----------------------+                +-----------------------+
+  |    Network            |                |    Network            |
+  |    Layer (Layer 3)    |                |    Layer (Layer 3)    |
+  |    (Routing,          |                |    (Routing,          |
+  |    addressing)        |                |    addressing)        |
+  +-----------------------+                +-----------------------+
+         |                                           |
+         v                                           v
+  +-----------------------+                +-----------------------+
+  |    Data Link          |                |    Data Link          |
+  |    Layer (Layer 2)    |                |    Layer (Layer 2)    |
+  |    (MAC addressing,   |                |    (MAC addressing,   |
+  |    Error detection)   |                |    Error detection)   |
+  +-----------------------+                +-----------------------+
+         |                                           |
+         v                                           v
+  +-----------------------+                +-----------------------+
+  |    Physical           |                |    Physical           |
+  |    Layer (Layer 1)    |                |    Layer (Layer 1)    |
+  |    (Physical medium)  |                |    (Physical medium)  |
+  +-----------------------+                +-----------------------+
+
 ```
 
 # Mermaid Diagram
