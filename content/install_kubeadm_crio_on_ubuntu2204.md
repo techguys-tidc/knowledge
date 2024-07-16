@@ -47,10 +47,8 @@
       - [Optional - Step Install BookInfo](#optional---step-install-bookinfo)
           - [Deploy BookInfo](#deploy-bookinfo)
         - [Deploy Bookinfo Istio Gateway](#deploy-bookinfo-istio-gateway)
-- [--------------------------------------------------------------------------](#--------------------------------------------------------------------------)
-- [sdfadf](#sdfadf)
-          - [Reset KubeADM](#reset-kubeadm)
-          - [Exec CTR Task](#exec-ctr-task)
+      - [Reset KubeADM](#reset-kubeadm)
+          - [Reset KubeADM](#reset-kubeadm-1)
 
 
 # Revision : 2024-08-16
@@ -929,36 +927,14 @@ sleep .2
 kubectl apply -n istio-bookinfo -f ./bookinfo-gateway.yaml
 }
 ```
-# --------------------------------------------------------------------------
 
 
 
-# sdfadf
 
-sudo kubeadm init
-
-sudo kubeadm init \
-  --pod-network-cidr=10.244.0.0/16 \
-  --apiserver-advertise-address=10.x.x.x
-
-sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=10.10.54.211
-
-
-{
-mkdir -p $HOME/.kube
-sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-}
-
-{
-kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
-}
-
-ctr -n k8s.io containers list
-
-kubectl -n kube-system rollout restart deployment coredns
-
+#### Reset KubeADM
 ###### Reset KubeADM
+
+```
 {
 sudo kubeadm reset
 echo "sleep 10 seconds"
@@ -968,16 +944,4 @@ sudo rm -rf /etc/cni /etc/kubernetes /var/lib/dockershim /var/lib/etcd /var/lib/
 #sudo crictl status
 sudo reboot
 }
-
-{
-rm -rf /mnt/ssd-disk-01/*
-rm -rf /mnt/hdd-disk-01/*
-}
-
-###### Exec CTR Task
-{
-[root@ksec-dmz-m-01 ~]# ctr task list
-TASK           PID     STATUS    
-calico-node    2876    RUNNING
-[root@ksec-dmz-m-01 ~]# ctr task exec -t --exec-id 1 calico-node /bin/bash
-}
+```
