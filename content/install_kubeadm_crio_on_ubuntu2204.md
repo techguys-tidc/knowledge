@@ -47,8 +47,8 @@
       - [Optional - Step Install BookInfo](#optional---step-install-bookinfo)
           - [Deploy BookInfo](#deploy-bookinfo)
         - [Deploy Bookinfo Istio Gateway](#deploy-bookinfo-istio-gateway)
-      - [Reset KubeADM](#reset-kubeadm)
-          - [Reset KubeADM](#reset-kubeadm-1)
+    - [Reset KubeADM](#reset-kubeadm)
+      - [Reset KubeADM](#reset-kubeadm-1)
 
 
 # Revision : 2024-08-16
@@ -931,8 +931,8 @@ kubectl apply -n istio-bookinfo -f ./bookinfo-gateway.yaml
 
 
 
+### Reset KubeADM
 #### Reset KubeADM
-###### Reset KubeADM
 
 ```
 {
