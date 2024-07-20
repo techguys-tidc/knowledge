@@ -1,15 +1,17 @@
-
 - [Limitation \& References](#limitation--references)
 - [Step](#step)
   - [Install RKE2](#install-rke2)
-    - [Install RKE2 - Server](#install-rke2---server)
+    - [Install RKE2 - Server (Master-Node)](#install-rke2---server-master-node)
+      - [Enable Firewall on port 6443](#enable-firewall-on-port-6443)
       - [Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images](#download-air-gapped-image-from-rke2-release-to-varlibrancherrke2agentimages)
       - [Create RKE2 Server - Configuration File](#create-rke2-server---configuration-file)
       - [Add Insecure Registry (k-harbor-01.maas)](#add-insecure-registry-k-harbor-01maas)
       - [Fix CNI: Cilium Bu When Disable Kube Proxy Bug](#fix-cni-cilium-bu-when-disable-kube-proxy-bug)
+      - [Add MetalLB HelmChart](#add-metallb-helmchart)
       - [Install RKE2 Systemd \& Start Systemd](#install-rke2-systemd--start-systemd)
       - [journalctl - log tracing](#journalctl---log-tracing)
-    - [Install RKE2 - Agent](#install-rke2---agent)
+      - [Modify Kube Config from 127.0.0.1 to KUBE\_VIP\_IP](#modify-kube-config-from-127001-to-kube_vip_ip)
+    - [Install RKE2 - Agent ( Worker-Node )](#install-rke2---agent--worker-node-)
       - [Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images](#download-air-gapped-image-from-rke2-release-to-varlibrancherrke2agentimages-1)
       - [Create Token on RKE2 Server](#create-token-on-rke2-server)
       - [Create RKE2 Agent Configuration](#create-rke2-agent-configuration)
@@ -32,7 +34,15 @@
 
 ## Install RKE2 
 
-### Install RKE2 - Server
+### Install RKE2 - Server (Master-Node)
+
+#### Enable Firewall on port 6443
+
+```shell
+{
+sudo ufw allow 6443/tcp
+}
+```
 
 #### Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images
 
@@ -95,7 +105,12 @@ echo 'configs:
 ```shell
 {
 mkdir -p /var/lib/rancher/rke2/server/manifests/
-echo 'apiVersion: helm.cattle.io/v1
+# Define variables for k8sServiceHost and k8sServicePort
+K8S_SERVICE_HOST="10.10.52.11"
+K8S_SERVICE_PORT="6443"
+# Use a here document (EOF) to create the YAML content
+cat << EOF > /var/lib/rancher/rke2/server/manifests/rke2-kubeproxyreplacement.yaml
+apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
   name: rke2-cilium
@@ -103,10 +118,45 @@ metadata:
 spec:
   valuesContent: |-
     kubeProxyReplacement: true
-    k8sServiceHost: 127.0.0.1
-    k8sServicePort: 6443
-    cni:
-      chainingMode: "none"' > /var/lib/rancher/rke2/server/manifests/rke2-kubeproxyreplacement.yaml
+    k8sServiceHost: $K8S_SERVICE_HOST
+    k8sServicePort: $K8S_SERVICE_PORT
+EOF
+}
+```
+
+#### Add MetalLB HelmChart
+
+```shell
+{
+echo "apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: metallb
+  namespace: kube-system
+spec:
+  repo: http://ruud-helm.maas/metallb.github.io/metallb
+  chart: metallb
+  targetNamespace: metallb-system
+  createNamespace: true
+  valuesContent: |-
+    controller:
+      image:
+        repository: k-harbor-01.maas/metallb_image/controller
+        tag: v0.14.5
+        pullPolicy:
+
+    speaker:
+      image:
+        repository: k-harbor-01.maas/metallb_image/speaker
+        tag: v0.14.5
+        pullPolicy:
+
+      frr:
+        image:
+          repository: k-harbor-01.maas/metallb_image/frr
+          tag: 9.0.2
+          pullPolicy:
+  " > /var/lib/rancher/rke2/server/manifests/rke2-metallb.yaml
 }
 ```
 
@@ -136,8 +186,17 @@ journalctl -f -u rke2-server.service
 }
 ```
 
+#### Modify Kube Config from 127.0.0.1 to KUBE_VIP_IP
 
-### Install RKE2 - Agent
+```shell
+{
+K8S_VIP_IP="10.10.52.11"
+sed -i "s/127.0.0.1/${K8S_VIP_IP}/g" /etc/rancher/rke2/rke2.yaml
+}
+```
+
+
+### Install RKE2 - Agent ( Worker-Node )
 
 #### Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images
 
@@ -226,7 +285,3 @@ should start all component by 5 to 10 minutes
 journalctl -f -u rke2-agent.service
 }
 ```
-
-
-
-
