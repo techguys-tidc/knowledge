@@ -510,6 +510,8 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
    name: rook-ceph-block
+   annotations:
+     storageclass.kubernetes.io/is-default-class: "true"
 # Change "rook-ceph" provisioner prefix to match the operator namespace if needed
 provisioner: rook-ceph.rbd.csi.ceph.com
 parameters:
@@ -923,7 +925,7 @@ exmaple result
 
 ```shell
 root@k-gong-kubeadm2-m-01:/etc/rancher/rke2# rke2 token create
-K1049e48392f524f5fc9f4a2c989c71d020acc53fc7bdd1dec5003109cef6d0f596::ny8bw8.kd8iljozlmbk0jub
+K10e4e3316ff062b417c3f19b31838f15650bbca5e480de1d08b147fa5173c866dc::h0b3in.bom7edr4s00fvb6w
 root@k-gong-kubeadm2-m-01:/etc/rancher/rke2# 
 ```
 
@@ -933,7 +935,7 @@ root@k-gong-kubeadm2-m-01:/etc/rancher/rke2#
 {
 # Define variables
 RKE2_SERVER_IP=10.10.52.11
-RKE2_AGENT_TOKEN=K1049e48392f524f5fc9f4a2c989c71d020acc53fc7bdd1dec5003109cef6d0f596::ny8bw8.kd8iljozlmbk0jub
+RKE2_AGENT_TOKEN=K10e4e3316ff062b417c3f19b31838f15650bbca5e480de1d08b147fa5173c866dc::h0b3in.bom7edr4s00fvb6w
 # Generate config.yaml content
 mkdir -p /etc/rancher/rke2/
 cat <<EOF > /etc/rancher/rke2/config.yaml
