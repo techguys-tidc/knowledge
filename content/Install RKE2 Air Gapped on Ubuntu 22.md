@@ -1,14 +1,23 @@
 
+- [RKE2 Best Installation Guide](#rke2-best-installation-guide)
 - [Limitation \& References](#limitation--references)
 - [Step](#step)
   - [Install RKE2](#install-rke2)
     - [Install RKE2 - Server (Master-Node)](#install-rke2---server-master-node)
       - [Enable Firewall on port 6443](#enable-firewall-on-port-6443)
+      - [Enable RBD](#enable-rbd)
+      - [Increase File Watcher](#increase-file-watcher)
       - [Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images](#download-air-gapped-image-from-rke2-release-to-varlibrancherrke2agentimages)
         - [Download v1.30](#download-v130)
-        - [Download v1.29](#download-v129)
-      - [Create RKE2 Server - Configuration File](#create-rke2-server---configuration-file)
-      - [Add Insecure Registry (k-harbor-01.maas)](#add-insecure-registry-k-harbor-01maas)
+      - [Add Insecure Registry (k-harbor-01.server.maas)](#add-insecure-registry-k-harbor-01servermaas)
+        - [Step to rewrite docker.io to k-harbor-01.server.maas](#step-to-rewrite-dockerio-to-k-harbor-01servermaas)
+          - [Step to Add SelfSign prevent containerd x509 cert error](#step-to-add-selfsign-prevent-containerd-x509-cert-error)
+          - [Config Work ( Redirect Docker.io to k-harbor-01.maas)](#config-work--redirect-dockerio-to-k-harbor-01maas)
+          - [Config Work ( Rewrite Docker.io to proxy)](#config-work--rewrite-dockerio-to-proxy)
+      - [Create RKE2 Token](#create-rke2-token)
+      - [Configuration File](#configuration-file)
+        - [Create RKE2 Server - Configuration File ( Main )](#create-rke2-server---configuration-file--main-)
+        - [Create RKE2 Server - Configuration File (disable rke2-ingress-nginx)](#create-rke2-server---configuration-file-disable-rke2-ingress-nginx)
       - [Fix CNI: Cilium Bug, When Disable KubeProxy](#fix-cni-cilium-bug-when-disable-kubeproxy)
       - [(Optional) Add Helm Chart](#optional-add-helm-chart)
         - [(Optional) Metallb](#optional-metallb)
@@ -19,31 +28,43 @@
           - [Prepare Extra Disk on Master or Worker Node, Ceph Needed Disk](#prepare-extra-disk-on-master-or-worker-node-ceph-needed-disk)
           - [must enable modprobe rbd , If not rbdplugin will failed to strat](#must-enable-modprobe-rbd--if-not-rbdplugin-will-failed-to-strat)
           - [Add Rook-Operator HelmChart](#add-rook-operator-helmchart)
+          - [Patch Finalizer , if cannot delete](#patch-finalizer--if-cannot-delete)
           - [Patch Ceph Image](#patch-ceph-image)
           - [Create Ceph Cluster](#create-ceph-cluster)
-          - [Ceph toolbox](#ceph-toolbox)
+          - [Monitor Cluster Provisioning Status](#monitor-cluster-provisioning-status)
+          - [Optional : Ceph toolbox use to run ceph -s](#optional--ceph-toolbox-use-to-run-ceph--s)
         - [(Optional) External-DNS](#optional-external-dns)
           - [Add External DNS HelmChart](#add-external-dns-helmchart)
       - [Install RKE2 Systemd \& Start Systemd](#install-rke2-systemd--start-systemd)
+      - [Copy Kubectl](#copy-kubectl)
       - [journalctl - log tracing](#journalctl---log-tracing)
       - [Replace RKE2 Kubeconfig IP \& Copy Kubeconfig to default kubeconfig](#replace-rke2-kubeconfig-ip--copy-kubeconfig-to-default-kubeconfig)
+      - [Get Node](#get-node)
+      - [Get Token](#get-token)
+        - [Ouput](#ouput)
     - [Install RKE2 - Agent ( Worker-Node )](#install-rke2---agent--worker-node-)
       - [Optional Step](#optional-step)
         - [(Optional) Set RBD parameter, If Rook-Ceph enabled](#optional-set-rbd-parameter-if-rook-ceph-enabled)
+      - [Increase File Watcher ( this command is temporary fix)](#increase-file-watcher--this-command-is-temporary-fix)
       - [Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images](#download-air-gapped-image-from-rke2-release-to-varlibrancherrke2agentimages-1)
         - [Download v1.30](#download-v130-1)
-        - [Download v1.29](#download-v129-1)
-      - [Create Token on RKE2 Server](#create-token-on-rke2-server)
+      - [Add Insecure Registry (k-harbor-01.server.maas)](#add-insecure-registry-k-harbor-01servermaas-1)
+        - [Step to rewrite docker.io to k-harbor-01.server.maas](#step-to-rewrite-dockerio-to-k-harbor-01servermaas-1)
+          - [Step to Add SelfSign prevent containerd x509 cert error](#step-to-add-selfsign-prevent-containerd-x509-cert-error-1)
+          - [Config Work ( Rewrite Docker.io to proxy)](#config-work--rewrite-dockerio-to-proxy-1)
       - [Create RKE2 Agent Configuration](#create-rke2-agent-configuration)
-      - [Add Insecure Registry (k-harbor-01.maas)](#add-insecure-registry-k-harbor-01maas-1)
+        - [RKE2 - Default Worker (Main)](#rke2---default-worker-main)
+        - [RKE2 - Default Worker (disable nginx)](#rke2---default-worker-disable-nginx)
+        - [RKE2 - Ceph Worker](#rke2---ceph-worker)
+        - [RKE2 - Ceph Worker](#rke2---ceph-worker-1)
       - [Install RKE2 Systemd \& Start Systemd](#install-rke2-systemd--start-systemd-1)
       - [journalctl - log tracing](#journalctl---log-tracing-1)
-    - [Test](#test)
-    - [Test](#test-1)
-      - [Add Network Param](#add-network-param)
+  - [Uninstall RKE2](#uninstall-rke2)
 
 
+# RKE2 Best Installation Guide
 
+[https://dev.to/arman-shafiei/install-rke2-with-cilium-and-metallb-48a4](https://dev.to/arman-shafiei/install-rke2-with-cilium-and-metallb-48a4)
 
 # Limitation & References
 
@@ -55,6 +76,9 @@
 
 # Step
 
+
+
+
 ## Install RKE2 
 
 ### Install RKE2 - Server (Master-Node)
@@ -63,11 +87,45 @@
 
 ```shell
 {
+sudo ufw allow 2379/tcp
+sudo ufw allow 2380/tcp
+sudo ufw allow 2381/tcp
+sudo ufw allow 2382/tcp
+sudo ufw allow 9345/tcp
 sudo ufw allow 6443/tcp
 }
 ```
 
+#### Enable RBD
 
+{
+modprobe rbd
+echo rbd | sudo tee -a /etc/modules
+}
+
+#### Increase File Watcher
+
+Permanantly
+
+```shell
+{
+sudo bash -c 'echo -e "fs.inotify.max_user_watches=2099999999\nfs.inotify.max_user_instances=2099999999\nfs.inotify.max_queued_events=2099999999" > /etc/sysctl.d/99-inotify.conf && sysctl --system'
+cat /etc/sysctl.d/99-inotify.conf
+sysctl fs.inotify.max_user_watches
+sysctl fs.inotify.max_user_instances
+sysctl fs.inotify.max_queued_events
+}
+```
+
+Onetime
+
+```shell
+{
+sudo sysctl -w fs.inotify.max_user_watches=2099999999
+sudo sysctl -w fs.inotify.max_user_instances=2099999999
+sudo sysctl -w fs.inotify.max_queued_events=2099999999
+}
+```
 
 #### Download Air-Gapped Image from RKE2 Release to /var/lib/rancher/rke2/agent/images
 
@@ -77,40 +135,142 @@ download tarball from https://github.com/rancher/rke2/releases/tag/v1.30.2%2Brke
 
 ```shell
 {
-rm -rf /var/lib/rancher/rke2/agent/images/
-mkdir -p /var/lib/rancher/rke2/agent/images/
-cd /var/lib/rancher/rke2/agent/images/
-wget http://10.10.54.4/rke2/rke2-images-cilium.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2/rke2-images-cilium.linux-amd64.txt
-wget http://10.10.54.4/rke2/rke2-images-core.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2/rke2-images-core.linux-amd64.txt
-wget http://10.10.54.4/rke2/rke2-images.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2/rke2-images.linux-amd64.txt
-wget http://10.10.54.4/rke2/sha256sum-amd64.txt
-wget http://10.10.54.4/rke2/rke2.linux-amd64.tar.gz
+rm -rf /root/images
+mkdir -p /root/images
+cd /root/images
+wget http://10.10.54.4/rke2_1.30.3/rke2-images-cilium.linux-amd64.tar.zst
+wget http://10.10.54.4/rke2_1.30.3/rke2-images.linux-amd64.tar.zst
+wget http://10.10.54.4/rke2_1.30.3/sha256sum-amd64.txt
+wget http://10.10.54.4/rke2_1.30.3/rke2-images-core.linux-amd64.tar.zst
+wget http://10.10.54.4/rke2_1.30.3/rke2.linux-amd64.tar.gz
 }
 ```
 
-##### Download v1.29
 
-download tarball from https://github.com/rancher/rke2/releases/tag/v1.30.2%2Brke2r1
+#### Add Insecure Registry (k-harbor-01.server.maas)
 
 ```shell
 {
-rm -rf /var/lib/rancher/rke2/agent/images/
-mkdir -p /var/lib/rancher/rke2/agent/images/
-cd /var/lib/rancher/rke2/agent/images/
-wget http://10.10.54.4/rke2_1.29/rke2-images-cilium.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/rke2-images-core.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/rke2-images.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/rke2.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/sha256sum-amd64.txt
-######### OPTIONAL INSTALL CANAL
-wget http://10.10.54.4/rke2_1.29/rke2-images-canal.linux-amd64.tar.gz
+mkdir -p /etc/rancher/rke2/
+echo 'configs:
+  "k-harbor-01.server.maas":
+    tls:
+      insecure_skip_verify: true' > /etc/rancher/rke2/registries.yaml
 }
 ```
 
-#### Create RKE2 Server - Configuration File
+##### Step to rewrite docker.io to k-harbor-01.server.maas
+
+###### Step to Add SelfSign prevent containerd x509 cert error
+
+```shell
+{
+export HABOR_URL=k-harbor-01.server.maas:443
+openssl s_client -connect ${HABOR_URL} -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM > 00-harbor-ca.crt 
+sudo cp 00-harbor-ca.crt /usr/local/share/ca-certificates/00-harbor-ca.crt 
+sudo update-ca-certificates
+curl -k https://${HABOR_URL}
+}
+```
+
+###### Config Work ( Redirect Docker.io to k-harbor-01.maas)
+
+```shell
+{
+mkdir -p /etc/rancher/rke2/
+echo 'mirrors:
+  docker.io:
+    endpoint:
+      - "https://k-harbor-01.server.maas:443"' > /etc/rancher/rke2/registries.yaml
+cat /etc/rancher/rke2/registries.yaml
+}
+```
+
+###### Config Work ( Rewrite Docker.io to proxy)
+
+```shell
+{
+mkdir -p /etc/rancher/rke2/
+PRIVATE_REPO_URL="k-harbor-01.server.maas:443"
+cat <<EOF > /etc/rancher/rke2/registries.yaml
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-hub.docker.io/\$1"
+  hub.docker.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-hub.docker.io/\$1"
+  ghcr.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-ghcr.io/\$1"
+  gcr.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-gcr.io/\$1"
+  quay.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-quay.io/\$1"
+  registry.k8s.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-registry.k8s.io/\$1"
+  public.ecr.aws:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-public.ecr.aws/\$1"
+  registry.gitlab.com:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-registry.gitlab.com/\$1"
+EOF
+cat /etc/rancher/rke2/registries.yaml
+}
+```
+
+<!-- ###### Restart RKE Server
+
+```shell
+{
+#systemctl restart rke2-agent
+systemctl restart rke2-server
+}
+``` -->
+
+#### Create RKE2 Token
+
+cmd
+
+```shell
+{
+openssl rand -hex 32
+}
+```
+
+output
+
+```shell
+{
+root@k-gong-kubeadm2-m-01:~# openssl rand -hex 32
+18ad75ac20304b27050dd905bd36eb5a688a1a0ac84a9cd71c4c64ab6e92c018
+root@k-gong-kubeadm2-m-01:~# 
+}
+```
+
+#### Configuration File
+
+##### Create RKE2 Server - Configuration File ( Main )
 
 ```shell
 {
@@ -128,21 +288,43 @@ cni: ${CNI_NETWORK}
 #cni: none
 disable-kube-proxy: true
 #debug: true
+#token: ${SERVER_TOKEN}
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
+  - "node-role.kubernetes.io/control-plane:NoSchedule"
+# disable:
+#   - rke2-ingress-nginx
 EOF
 }
 ```
 
-#### Add Insecure Registry (k-harbor-01.maas)
+##### Create RKE2 Server - Configuration File (disable rke2-ingress-nginx) 
 
 ```shell
 {
-echo 'configs:
-  "k-harbor-01.maas":
-    tls:
-      insecure_skip_verify: true' > /etc/rancher/rke2/registries.yaml
+# Define variables
+CNI_NETWORK=cilium
+KUBECONF_FILE="/etc/rancher/rke2/kubeconfig"
+# Generate config.yaml content
+mkdir -p /etc/rancher/rke2/
+cat <<EOF > /etc/rancher/rke2/config.yaml
+write-kubeconfig: ${KUBECONF_FILE}
+write-kubeconfig-mode: "0644"
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+cni: ${CNI_NETWORK}
+#cni: none
+disable-kube-proxy: true
+#debug: true
+#token: ${SERVER_TOKEN}
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
+  - "node-role.kubernetes.io/control-plane:NoSchedule"
+disable:
+  - rke2-ingress-nginx
+EOF
 }
 ```
-
 
 #### Fix CNI: Cilium Bug, When Disable KubeProxy
 
@@ -187,8 +369,8 @@ metadata:
   namespace: kube-system
 spec:
   insecureSkipTLSVerify: true
-  chart: oci://k-harbor-01.maas/helm-chart/metallb
-  version: 0.14.5
+  chart: oci://k-harbor-01.server.maas/helm-chart/metallb
+  version: 0.14.7
   targetNamespace: metallb-system
   createNamespace: true
   # authSecret:
@@ -198,20 +380,20 @@ spec:
   valuesContent: |-
     controller:
       image:
-        repository: k-harbor-01.maas/metallb_image/controller
-        tag: v0.14.5
+        repository: k-harbor-01.server.maas/metallb_image/controller
+        tag: v0.14.7
         pullPolicy:
 
     speaker:
       image:
-        repository: k-harbor-01.maas/metallb_image/speaker
-        tag: v0.14.5
+        repository: k-harbor-01.server.maas/metallb_image/speaker
+        tag: v0.14.7
         pullPolicy:
 
       frr:
         image:
-          repository: k-harbor-01.maas/metallb_image/frr
-          tag: 9.0.2
+          repository: k-harbor-01.server.maas/metallb_image/frr
+          tag: 9.1.0
           pullPolicy:
 # ---
 # apiVersion: v1
@@ -232,26 +414,27 @@ metadata:
 data:
   ca.crt: |-
     -----BEGIN CERTIFICATE-----
-    MIIDqzCCApOgAwIBAgIUOHgHCowkVQLwCsWcU9czYagU2CIwDQYJKoZIhvcNAQEL
-    BQAwZjELMAkGA1UEBhMCWFgxDDAKBgNVBAgMA04vQTEMMAoGA1UEBwwDTi9BMSAw
-    HgYDVQQKDBdTZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZTEZMBcGA1UEAwwQay1oYXJi
-    b3ItMDEubWFhczAeFw0yMzExMTYwNTU5NDlaFw0zMzExMTMwNTU5NDlaMGYxCzAJ
-    BgNVBAYTAlhYMQwwCgYDVQQIDANOL0ExDDAKBgNVBAcMA04vQTEgMB4GA1UECgwX
-    U2VsZi1zaWduZWQgY2VydGlmaWNhdGUxGTAXBgNVBAMMEGstaGFyYm9yLTAxLm1h
-    YXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC770WZ9giux/veOx/X
-    EDiCEnuT/6Bm4pSxTjrlpVl4o4RRQ4O3ylQ2pP7ZiXkfMmInP5rDkAGmZTDFbKhZ
-    lMy+zjv65cKOyIgfYKVneEprwEpNA/htDrbuDw1o0JnglO8o+NIGYrNqBHQie0nA
-    vIvTTkBq1p+h0u1LdQOhC6YZKm5su20ynRD+Htty/4goA0y1DF+/WCIIPSQa8qkf
-    Vg5+jYUogYkIay1twqGb+988ar7VOb9gRjkiq86Qtp+AvpNHbT01BMmksXcjsHZ5
-    zDaLeFc49flD16t6lVkK0LHxUoUzwp/t//GmilAptUWMT24yrmmKsSvJMfOUKeMg
-    sQXNAgMBAAGjUTBPMC4GA1UdEQQnMCWCEGstaGFyYm9yLTAxLm1hYXOCC2staGFy
-    Ym9yLTAxhwQKCjbxMB0GA1UdDgQWBBR84z7v0eKpOZRfl3y7Fwiby+WruDANBgkq
-    hkiG9w0BAQsFAAOCAQEAfu2nurgBVhUdjXg6sLR4POyQ22I70BoD8LlrcrYBtpJ4
-    7jORP/j/6y4elBjy8BljE9NpCyRuNnvMAQpKwuqWSyS+QZlEZud0H9ym4RvRi6dW
-    B1Ko9ELUws+5HA0LmMza2pBIEedwJp9GVv6cjCm6eH2thr143QeUK6SyKIDFtG+L
-    GZNhtlkVt6g66UP+bYqdUWsRQ3NsnjX3fq0fFB3LPI5wZT1Gy8qseFH6Y/oe0bDs
-    mlBKPyoPJEnRzreoTs9qiDIoIe/ehxTzqeBh9bn81OdVRW54F/XO79G+wv+05Bko
-    bVu0od+aCjVCdaRmO7Tzq9MGEovZt8d7sUM/kHuN1g==
+    MIIDwDCCAqigAwIBAgIUZOdpWXJUvAQ8yLosFgrzOKPSBi8wDQYJKoZIhvcNAQEL
+    BQAwbTELMAkGA1UEBhMCWFgxDDAKBgNVBAgMA04vQTEMMAoGA1UEBwwDTi9BMSAw
+    HgYDVQQKDBdTZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZTEgMB4GA1UEAwwXay1oYXJi
+    b3ItMDEuc2VydmVyLm1hYXMwHhcNMjQwODEwMTc1MjMxWhcNMzQwODA4MTc1MjMx
+    WjBtMQswCQYDVQQGEwJYWDEMMAoGA1UECAwDTi9BMQwwCgYDVQQHDANOL0ExIDAe
+    BgNVBAoMF1NlbGYtc2lnbmVkIGNlcnRpZmljYXRlMSAwHgYDVQQDDBdrLWhhcmJv
+    ci0wMS5zZXJ2ZXIubWFhczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+    AM/PP7jhDMNKlFhh/L4MIsdjRSzHZIUsT1h0QtqMRvupLRU2AA+KKDCWqeh7SjxT
+    En4qiyh+NCj4sBX5Gy9ZOmjZ6MdFYlAwUkTJHiCbjVugmaQpzIjiBxNYRv0ogGSq
+    /cy3Id4eKH9ZDYJq74lKJr8Ogz5F/uP/I+KDe1rUyffI/YuWF3wL3YDyT3A4Sa7D
+    J+ywmA7+ZMqzjK2l3i1OObPlbgoyEojjUBel8cpxDie/ET0QfwlWy8KE5D7N5pNd
+    irjXw68abEyckvM+Cb4XXGLXLC5zp0g5C3EvkK7W5X+zOYHNqI+oNUum4KtBumxD
+    1XTkF+kRjj/8AuJ0YUGO520CAwEAAaNYMFYwNQYDVR0RBC4wLIIXay1oYXJib3It
+    MDEuc2VydmVyLm1hYXOCC2staGFyYm9yLTAxhwQKCjbxMB0GA1UdDgQWBBSZ05BD
+    mv0fQGmryWcYf0olCPhi7TANBgkqhkiG9w0BAQsFAAOCAQEAlCE6E6R5Hi586+TN
+    /hrGRtTUemvY9BQjES0pJm4i14SOMRWglqCRvE5FAbuBXVyBb4YguFCh8w+V/Cjw
+    oItAcGmRfTNHDti3aMLCSB7tcmws3A6MRUY0qIQ4TNyydCePOWEmajcpBbuVXrW0
+    NBsibWd/7j+CUum3iExbgBdVf26P5B8oQ+k2Ed6cTVhxOR+UMvtbOazBE8zCEH/C
+    sAVJbCn7Y9hR+/CkUOKgTD83G3r/c0dbG0YcN51eWWvztPXfjjGOkmmYGj2O7l46
+    bHYo9kliH31IHj1QBml5fNlQN5A+X5pki/vTLep5mpAUdqB4x3XRpyo3+5UnKyN+
+    9M87nA==
     -----END CERTIFICATE-----
   " > /var/lib/rancher/rke2/server/manifests/${CHART_FILENAME}
 }
@@ -336,6 +519,7 @@ fix
 ``` shell
 {
 modprobe rbd
+echo rbd | sudo tee -a /etc/modules
 }
 ```
 
@@ -352,7 +536,7 @@ metadata:
   name: rook-ceph
   namespace: kube-system
 spec:
-  chart: oci://k-harbor-01.maas/helm-chart/rook-ceph
+  chart: oci://k-harbor-01.server.maas/helm-chart/rook-ceph
   version: v1.14.8
   targetNamespace: rook-ceph
   createNamespace: true
@@ -363,7 +547,7 @@ spec:
   valuesContent: |-
     image:
       # -- Image
-      repository: k-harbor-01.maas/rook_image/ceph
+      repository: k-harbor-01.server.maas/rook_image/ceph
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -383,28 +567,37 @@ metadata:
 data:
   ca.crt: |-
     -----BEGIN CERTIFICATE-----
-    MIIDqzCCApOgAwIBAgIUOHgHCowkVQLwCsWcU9czYagU2CIwDQYJKoZIhvcNAQEL
-    BQAwZjELMAkGA1UEBhMCWFgxDDAKBgNVBAgMA04vQTEMMAoGA1UEBwwDTi9BMSAw
-    HgYDVQQKDBdTZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZTEZMBcGA1UEAwwQay1oYXJi
-    b3ItMDEubWFhczAeFw0yMzExMTYwNTU5NDlaFw0zMzExMTMwNTU5NDlaMGYxCzAJ
-    BgNVBAYTAlhYMQwwCgYDVQQIDANOL0ExDDAKBgNVBAcMA04vQTEgMB4GA1UECgwX
-    U2VsZi1zaWduZWQgY2VydGlmaWNhdGUxGTAXBgNVBAMMEGstaGFyYm9yLTAxLm1h
-    YXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC770WZ9giux/veOx/X
-    EDiCEnuT/6Bm4pSxTjrlpVl4o4RRQ4O3ylQ2pP7ZiXkfMmInP5rDkAGmZTDFbKhZ
-    lMy+zjv65cKOyIgfYKVneEprwEpNA/htDrbuDw1o0JnglO8o+NIGYrNqBHQie0nA
-    vIvTTkBq1p+h0u1LdQOhC6YZKm5su20ynRD+Htty/4goA0y1DF+/WCIIPSQa8qkf
-    Vg5+jYUogYkIay1twqGb+988ar7VOb9gRjkiq86Qtp+AvpNHbT01BMmksXcjsHZ5
-    zDaLeFc49flD16t6lVkK0LHxUoUzwp/t//GmilAptUWMT24yrmmKsSvJMfOUKeMg
-    sQXNAgMBAAGjUTBPMC4GA1UdEQQnMCWCEGstaGFyYm9yLTAxLm1hYXOCC2staGFy
-    Ym9yLTAxhwQKCjbxMB0GA1UdDgQWBBR84z7v0eKpOZRfl3y7Fwiby+WruDANBgkq
-    hkiG9w0BAQsFAAOCAQEAfu2nurgBVhUdjXg6sLR4POyQ22I70BoD8LlrcrYBtpJ4
-    7jORP/j/6y4elBjy8BljE9NpCyRuNnvMAQpKwuqWSyS+QZlEZud0H9ym4RvRi6dW
-    B1Ko9ELUws+5HA0LmMza2pBIEedwJp9GVv6cjCm6eH2thr143QeUK6SyKIDFtG+L
-    GZNhtlkVt6g66UP+bYqdUWsRQ3NsnjX3fq0fFB3LPI5wZT1Gy8qseFH6Y/oe0bDs
-    mlBKPyoPJEnRzreoTs9qiDIoIe/ehxTzqeBh9bn81OdVRW54F/XO79G+wv+05Bko
-    bVu0od+aCjVCdaRmO7Tzq9MGEovZt8d7sUM/kHuN1g==
+    MIIDwDCCAqigAwIBAgIUZOdpWXJUvAQ8yLosFgrzOKPSBi8wDQYJKoZIhvcNAQEL
+    BQAwbTELMAkGA1UEBhMCWFgxDDAKBgNVBAgMA04vQTEMMAoGA1UEBwwDTi9BMSAw
+    HgYDVQQKDBdTZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZTEgMB4GA1UEAwwXay1oYXJi
+    b3ItMDEuc2VydmVyLm1hYXMwHhcNMjQwODEwMTc1MjMxWhcNMzQwODA4MTc1MjMx
+    WjBtMQswCQYDVQQGEwJYWDEMMAoGA1UECAwDTi9BMQwwCgYDVQQHDANOL0ExIDAe
+    BgNVBAoMF1NlbGYtc2lnbmVkIGNlcnRpZmljYXRlMSAwHgYDVQQDDBdrLWhhcmJv
+    ci0wMS5zZXJ2ZXIubWFhczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+    AM/PP7jhDMNKlFhh/L4MIsdjRSzHZIUsT1h0QtqMRvupLRU2AA+KKDCWqeh7SjxT
+    En4qiyh+NCj4sBX5Gy9ZOmjZ6MdFYlAwUkTJHiCbjVugmaQpzIjiBxNYRv0ogGSq
+    /cy3Id4eKH9ZDYJq74lKJr8Ogz5F/uP/I+KDe1rUyffI/YuWF3wL3YDyT3A4Sa7D
+    J+ywmA7+ZMqzjK2l3i1OObPlbgoyEojjUBel8cpxDie/ET0QfwlWy8KE5D7N5pNd
+    irjXw68abEyckvM+Cb4XXGLXLC5zp0g5C3EvkK7W5X+zOYHNqI+oNUum4KtBumxD
+    1XTkF+kRjj/8AuJ0YUGO520CAwEAAaNYMFYwNQYDVR0RBC4wLIIXay1oYXJib3It
+    MDEuc2VydmVyLm1hYXOCC2staGFyYm9yLTAxhwQKCjbxMB0GA1UdDgQWBBSZ05BD
+    mv0fQGmryWcYf0olCPhi7TANBgkqhkiG9w0BAQsFAAOCAQEAlCE6E6R5Hi586+TN
+    /hrGRtTUemvY9BQjES0pJm4i14SOMRWglqCRvE5FAbuBXVyBb4YguFCh8w+V/Cjw
+    oItAcGmRfTNHDti3aMLCSB7tcmws3A6MRUY0qIQ4TNyydCePOWEmajcpBbuVXrW0
+    NBsibWd/7j+CUum3iExbgBdVf26P5B8oQ+k2Ed6cTVhxOR+UMvtbOazBE8zCEH/C
+    sAVJbCn7Y9hR+/CkUOKgTD83G3r/c0dbG0YcN51eWWvztPXfjjGOkmmYGj2O7l46
+    bHYo9kliH31IHj1QBml5fNlQN5A+X5pki/vTLep5mpAUdqB4x3XRpyo3+5UnKyN+
+    9M87nA==
     -----END CERTIFICATE-----
   " > /var/lib/rancher/rke2/server/manifests/${CHART_FILENAME}
+}
+```
+
+###### Patch Finalizer , if cannot delete
+
+```shell
+{
+kubectl -n rook-ceph patch cephblockpool replicapool --type=merge -p '{"metadata":{"finalizers":[]}}'
 }
 ```
 
@@ -416,13 +609,13 @@ kubectl get configmaps rook-ceph-operator-config -o yaml | grep "IMAGE:"
 echo "================================================="
 cat << EOF > ./patch_ceph_image.yaml
 data:
-  ROOK_CSI_ATTACHER_IMAGE: k-harbor-01.maas/k8s-csi/csi-attacher:v4.5.1
-  ROOK_CSI_PROVISIONER_IMAGE: k-harbor-01.maas/k8s-csi/csi-provisioner:v4.0.1
-  ROOK_CSI_REGISTRAR_IMAGE: k-harbor-01.maas/k8s-csi/csi-node-driver-registrar:v2.10.1
-  ROOK_CSI_RESIZER_IMAGE: k-harbor-01.maas/k8s-csi/csi-resizer:v1.10.1
-  ROOK_CSI_SNAPSHOTTER_IMAGE: k-harbor-01.maas/k8s-csi/csi-snapshotter:v7.0.2
-  ROOK_CSI_CEPH_IMAGE: k-harbor-01.maas/ceph_image/cephcsi:v3.11.0
-  ROOK_CSIADDONS_IMAGE: k-harbor-01.maas/ceph_image/k8s-sidecar:v0.8.0
+  ROOK_CSI_ATTACHER_IMAGE: k-harbor-01.server.maas/k8s-csi/csi-attacher:v4.5.1
+  ROOK_CSI_PROVISIONER_IMAGE: k-harbor-01.server.maas/k8s-csi/csi-provisioner:v4.0.1
+  ROOK_CSI_REGISTRAR_IMAGE: k-harbor-01.server.maas/k8s-csi/csi-node-driver-registrar:v2.10.1
+  ROOK_CSI_RESIZER_IMAGE: k-harbor-01.server.maas/k8s-csi/csi-resizer:v1.10.1
+  ROOK_CSI_SNAPSHOTTER_IMAGE: k-harbor-01.server.maas/k8s-csi/csi-snapshotter:v7.0.2
+  ROOK_CSI_CEPH_IMAGE: k-harbor-01.server.maas/ceph_image/cephcsi:v3.11.0
+  ROOK_CSIADDONS_IMAGE: k-harbor-01.server.maas/ceph_image/k8s-sidecar:v0.8.0
 EOF
 kubectl patch configmap rook-ceph-operator-config --patch "$(cat ./patch_ceph_image.yaml)"
 sleep .5
@@ -449,12 +642,12 @@ cat << EOF > ./create_ceph_cluster.yaml
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
 metadata:
-  name: my-cluster
+  name: my-ceph
   namespace: rook-ceph # namespace:cluster
 spec:
   dataDirHostPath: /var/lib/rook
   cephVersion:
-    image: k-harbor-01.maas/ceph_image/ceph:v18.2.2
+    image: quay.io/ceph/ceph:v18.2.2
     allowUnsupported: true
   mon:
     count: 1
@@ -560,7 +753,24 @@ kubectl apply -f create_ceph_cluster.yaml
 }
 ```
 
-###### Ceph toolbox
+###### Monitor Cluster Provisioning Status
+
+```shell
+{
+nattawat.ujj@k-k8s-deployment-01:~$ k get cephclusters.ceph.rook.io  -w
+NAME      DATADIRHOSTPATH   MONCOUNT   AGE   PHASE         MESSAGE                 HEALTH   EXTERNAL   FSID
+my-ceph   /var/lib/rook     1          91s   Progressing   Configuring Ceph Mons                       
+my-ceph   /var/lib/rook     1          2m28s   Progressing   Configuring Ceph Mgr(s)                       
+my-ceph   /var/lib/rook     1          2m54s   Progressing   Configuring Ceph OSDs                         
+my-ceph   /var/lib/rook     1          3m21s   Progressing   Processing OSD 0 on node "monpf-workload-worker-02"                       
+my-ceph   /var/lib/rook     1          6m22s   Progressing   Processing OSD 1 on node "monpf-workload-worker-01"                       
+my-ceph   /var/lib/rook     1          6m26s   Progressing   Processing OSD 1 on node "monpf-workload-worker-01"                       
+my-ceph   /var/lib/rook     1          6m27s   Ready         Cluster created successfully                          HEALTH_OK              ad9b2dfc-d273-404b-ae34-018768fa8d71
+my-ceph   /var/lib/rook     1          7m31s   Ready         Cluster created successfully                          HEALTH_OK              ad9b2dfc-d273-404b-ae34-018768fa8d71
+}
+```
+
+###### Optional : Ceph toolbox use to run ceph -s
 
 [Ceph Toolbox - yaml](https://github.com/rook/rook/blob/master/deploy/examples/toolbox.yaml)
 
@@ -588,7 +798,7 @@ spec:
       serviceAccountName: rook-ceph-default
       containers:
         - name: rook-ceph-tools
-          image: k-harbor-01.maas/ceph_image/ceph:v18.2.2
+          image: k-harbor-01.server.maas/ceph_image/ceph:v18.2.2
           command:
             - /bin/bash
             - -c
@@ -713,6 +923,10 @@ you need to adjust the parameter to suit your dns
 ```shell
 {
 CHART_FILENAME=rke2-external-dns.yaml
+ZONE_NAME=gong.k8s.maas
+DNS_SERVER_IP=10.10.0.8
+DNS_KEYNAME="externaldns-key"
+DNS_KEYPASSWORD="GH6RDefrrZngKZZs57eTVf/tGWiqLAUSoPOPaZVFFLk="
 echo "
 ---
 apiVersion: helm.cattle.io/v1
@@ -721,7 +935,7 @@ metadata:
   name: external-dns
   namespace: kube-system
 spec:
-  chart: oci://k-harbor-01.maas/helm-chart/external-dns
+  chart: oci://k-harbor-01.server.maas/helm-chart/external-dns
   version: 1.14.5
   targetNamespace: external-dns
   createNamespace: true
@@ -732,18 +946,18 @@ spec:
   valuesContent: |-
     # The external-dns image to use.
     image:
-      repository: k-harbor-01.maas/externaldns_image/external-dns
+      repository: k-harbor-01.server.maas/externaldns_image/external-dns
       tag: v0.14.2
     # The DNS provider to use. This example uses RFC2136.
     provider: rfc2136
     # Configuration specific to the RFC2136 provider.
     rfc2136:
       # The URL of the DNS server to use.
-      server: "10.10.0.8"
+      server: "${DNS_SERVER_IP}"
       # The port of the DNS server to use.
       port: 53
       # The name of the zone to manage.
-      zone: "ingress.maas"
+      zone: "${ZONE_NAME}"
     # List of sources from which ExternalDNS should read the records.
     sources:
       - service
@@ -753,7 +967,7 @@ spec:
     # The domain filters to use. This restricts external-dns to only manage records
     # within these domains.
     domainFilters:
-      - ingress.maas
+      - ${ZONE_NAME}
     # The policy for managing DNS records. Possible values are "upsert-only" and "sync".
     policy: "sync"
     # If true, the external-dns controller will create the records it manages even if they do not exist.
@@ -767,12 +981,14 @@ spec:
     # Resources requests and limits for the ExternalDNS pod.
     resources: {}
     extraArgs:
-      - --rfc2136-host=10.10.0.8
+      - --rfc2136-host=${DNS_SERVER_IP}
       - --rfc2136-port=53
-      - --rfc2136-zone=ingress.maas
-      - --rfc2136-tsig-secret=GH6RDefrrZngKZZs57eTVf/tGWiqLAUSoPOPaZVFFLk=
-      - --rfc2136-tsig-keyname=externaldns-key
+      - --rfc2136-zone=${ZONE_NAME}
+      - --rfc2136-tsig-keyname=${DNS_KEYNAME}
+      - --rfc2136-tsig-secret=${DNS_KEYPASSWORD}
       - --rfc2136-tsig-secret-alg=hmac-sha256
+      - --rfc2136-min-ttl=90s
+      - --rfc2136-tsig-axfr
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -792,26 +1008,27 @@ metadata:
 data:
   ca.crt: |-
     -----BEGIN CERTIFICATE-----
-    MIIDqzCCApOgAwIBAgIUOHgHCowkVQLwCsWcU9czYagU2CIwDQYJKoZIhvcNAQEL
-    BQAwZjELMAkGA1UEBhMCWFgxDDAKBgNVBAgMA04vQTEMMAoGA1UEBwwDTi9BMSAw
-    HgYDVQQKDBdTZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZTEZMBcGA1UEAwwQay1oYXJi
-    b3ItMDEubWFhczAeFw0yMzExMTYwNTU5NDlaFw0zMzExMTMwNTU5NDlaMGYxCzAJ
-    BgNVBAYTAlhYMQwwCgYDVQQIDANOL0ExDDAKBgNVBAcMA04vQTEgMB4GA1UECgwX
-    U2VsZi1zaWduZWQgY2VydGlmaWNhdGUxGTAXBgNVBAMMEGstaGFyYm9yLTAxLm1h
-    YXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC770WZ9giux/veOx/X
-    EDiCEnuT/6Bm4pSxTjrlpVl4o4RRQ4O3ylQ2pP7ZiXkfMmInP5rDkAGmZTDFbKhZ
-    lMy+zjv65cKOyIgfYKVneEprwEpNA/htDrbuDw1o0JnglO8o+NIGYrNqBHQie0nA
-    vIvTTkBq1p+h0u1LdQOhC6YZKm5su20ynRD+Htty/4goA0y1DF+/WCIIPSQa8qkf
-    Vg5+jYUogYkIay1twqGb+988ar7VOb9gRjkiq86Qtp+AvpNHbT01BMmksXcjsHZ5
-    zDaLeFc49flD16t6lVkK0LHxUoUzwp/t//GmilAptUWMT24yrmmKsSvJMfOUKeMg
-    sQXNAgMBAAGjUTBPMC4GA1UdEQQnMCWCEGstaGFyYm9yLTAxLm1hYXOCC2staGFy
-    Ym9yLTAxhwQKCjbxMB0GA1UdDgQWBBR84z7v0eKpOZRfl3y7Fwiby+WruDANBgkq
-    hkiG9w0BAQsFAAOCAQEAfu2nurgBVhUdjXg6sLR4POyQ22I70BoD8LlrcrYBtpJ4
-    7jORP/j/6y4elBjy8BljE9NpCyRuNnvMAQpKwuqWSyS+QZlEZud0H9ym4RvRi6dW
-    B1Ko9ELUws+5HA0LmMza2pBIEedwJp9GVv6cjCm6eH2thr143QeUK6SyKIDFtG+L
-    GZNhtlkVt6g66UP+bYqdUWsRQ3NsnjX3fq0fFB3LPI5wZT1Gy8qseFH6Y/oe0bDs
-    mlBKPyoPJEnRzreoTs9qiDIoIe/ehxTzqeBh9bn81OdVRW54F/XO79G+wv+05Bko
-    bVu0od+aCjVCdaRmO7Tzq9MGEovZt8d7sUM/kHuN1g==
+    MIIDwDCCAqigAwIBAgIUZOdpWXJUvAQ8yLosFgrzOKPSBi8wDQYJKoZIhvcNAQEL
+    BQAwbTELMAkGA1UEBhMCWFgxDDAKBgNVBAgMA04vQTEMMAoGA1UEBwwDTi9BMSAw
+    HgYDVQQKDBdTZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZTEgMB4GA1UEAwwXay1oYXJi
+    b3ItMDEuc2VydmVyLm1hYXMwHhcNMjQwODEwMTc1MjMxWhcNMzQwODA4MTc1MjMx
+    WjBtMQswCQYDVQQGEwJYWDEMMAoGA1UECAwDTi9BMQwwCgYDVQQHDANOL0ExIDAe
+    BgNVBAoMF1NlbGYtc2lnbmVkIGNlcnRpZmljYXRlMSAwHgYDVQQDDBdrLWhhcmJv
+    ci0wMS5zZXJ2ZXIubWFhczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+    AM/PP7jhDMNKlFhh/L4MIsdjRSzHZIUsT1h0QtqMRvupLRU2AA+KKDCWqeh7SjxT
+    En4qiyh+NCj4sBX5Gy9ZOmjZ6MdFYlAwUkTJHiCbjVugmaQpzIjiBxNYRv0ogGSq
+    /cy3Id4eKH9ZDYJq74lKJr8Ogz5F/uP/I+KDe1rUyffI/YuWF3wL3YDyT3A4Sa7D
+    J+ywmA7+ZMqzjK2l3i1OObPlbgoyEojjUBel8cpxDie/ET0QfwlWy8KE5D7N5pNd
+    irjXw68abEyckvM+Cb4XXGLXLC5zp0g5C3EvkK7W5X+zOYHNqI+oNUum4KtBumxD
+    1XTkF+kRjj/8AuJ0YUGO520CAwEAAaNYMFYwNQYDVR0RBC4wLIIXay1oYXJib3It
+    MDEuc2VydmVyLm1hYXOCC2staGFyYm9yLTAxhwQKCjbxMB0GA1UdDgQWBBSZ05BD
+    mv0fQGmryWcYf0olCPhi7TANBgkqhkiG9w0BAQsFAAOCAQEAlCE6E6R5Hi586+TN
+    /hrGRtTUemvY9BQjES0pJm4i14SOMRWglqCRvE5FAbuBXVyBb4YguFCh8w+V/Cjw
+    oItAcGmRfTNHDti3aMLCSB7tcmws3A6MRUY0qIQ4TNyydCePOWEmajcpBbuVXrW0
+    NBsibWd/7j+CUum3iExbgBdVf26P5B8oQ+k2Ed6cTVhxOR+UMvtbOazBE8zCEH/C
+    sAVJbCn7Y9hR+/CkUOKgTD83G3r/c0dbG0YcN51eWWvztPXfjjGOkmmYGj2O7l46
+    bHYo9kliH31IHj1QBml5fNlQN5A+X5pki/vTLep5mpAUdqB4x3XRpyo3+5UnKyN+
+    9M87nA==
     -----END CERTIFICATE-----
   " > /var/lib/rancher/rke2/server/manifests/${CHART_FILENAME}
 }
@@ -823,12 +1040,29 @@ download https://get.rke2.io/ and rename to rke2_install.sh
 
 ```shell
 {
-curl -sfL http://10.10.54.4/rke2/rke2_install.sh --output install.sh
-INSTALL_RKE2_ARTIFACT_PATH=/var/lib/rancher/rke2/agent/images/ sh install.sh
+export TARGET_RKE_VERSION='v1.30.3+rke2r1'
+curl -sfL http://10.10.54.4/rke2_1.30.3/get.rke2.io --output install.sh
+chmod 755 ./install.sh
+INSTALL_RKE2_ARTIFACT_PATH=/root/images INSTALL_RKE2_VERSION="${TARGET_RKE_VERSION}" INSTALL_RKE2_TYPE="server" ./install.sh
 sleep 2
 systemctl enable rke2-server.service
 sleep 1
 systemctl start rke2-server.service
+sleep 10
+rm -f /var/lib/rancher/rke2/agent/images/*
+}
+```
+
+
+#### Copy Kubectl
+
+```shell
+{
+echo 'PATH=$PATH:/var/lib/rancher/rke2/bin' >> ~/.bashrc
+source ~/.bashrc
+cd ~
+mkdir ~/.kube
+cp /etc/rancher/rke2/rke2.yaml ~/.kube/config
 }
 ```
 
@@ -858,6 +1092,41 @@ cat /etc/rancher/rke2/rke2.yaml
 }
 ```
 
+#### Get Node
+
+```shell
+{
+/var/lib/rancher/rke2/bin/kubectl get nodes \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml 
+/var/lib/rancher/rke2/bin/kubectl get pod -n kube-system \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml 
+}
+```
+
+
+#### Get Token
+
+```shell
+{
+cat /var/lib/rancher/rke2/server/node-token
+}
+```
+
+##### Ouput
+
+```shell
+{
+mkdir -p /var/lib/rancher/rke2/server/
+echo 'K10de6805a2203c992b68139334341f700b68afd399c081c78751de4fc7404a9a91::server:18ad75ac20304b27050dd905bd36eb5a688a1a0ac84a9cd71c4c64ab6e92c018' > /var/lib/rancher/rke2/server/node-token
+}
+```
+
+```shell
+root@k-gong-kubeadm2-m-01:/var/lib/rancher/rke2/bin# cat /var/lib/rancher/rke2/server/node-token
+K10de6805a2203c992b68139334341f700b68afd399c081c78751de4fc7404a9a91::server:18ad75ac20304b27050dd905bd36eb5a688a1a0ac84a9cd71c4c64ab6e92c018
+```
+
+
 
 ### Install RKE2 - Agent ( Worker-Node )
 
@@ -869,6 +1138,19 @@ cat /etc/rancher/rke2/rke2.yaml
 ```shell
 {
 modprobe rbd
+echo rbd | sudo tee -a /etc/modules
+}
+```
+
+#### Increase File Watcher ( this command is temporary fix)
+
+failed to create fsnotify watcher: too many open files
+
+```shell
+{
+sudo sysctl -w fs.inotify.max_user_watches=2099999999
+sudo sysctl -w fs.inotify.max_user_instances=2099999999
+sudo sysctl -w fs.inotify.max_queued_events=2099999999
 }
 ```
 
@@ -880,81 +1162,190 @@ download tarball from https://github.com/rancher/rke2/releases/tag/v1.30.2%2Brke
 
 ```shell
 {
-rm -rf /var/lib/rancher/rke2/agent/images/
-mkdir -p /var/lib/rancher/rke2/agent/images/
-cd /var/lib/rancher/rke2/agent/images/
-wget http://10.10.54.4/rke2/rke2-images-cilium.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2/rke2-images-cilium.linux-amd64.txt
-wget http://10.10.54.4/rke2/rke2-images-core.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2/rke2-images-core.linux-amd64.txt
-wget http://10.10.54.4/rke2/rke2-images.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2/rke2-images.linux-amd64.txt
-wget http://10.10.54.4/rke2/sha256sum-amd64.txt
-wget http://10.10.54.4/rke2/rke2.linux-amd64.tar.gz
+rm -rf /root/images
+mkdir -p /root/images
+cd /root/images
+wget http://10.10.54.4/rke2_1.30.3/rke2-images-cilium.linux-amd64.tar.zst
+wget http://10.10.54.4/rke2_1.30.3/rke2-images.linux-amd64.tar.zst
+wget http://10.10.54.4/rke2_1.30.3/sha256sum-amd64.txt
+wget http://10.10.54.4/rke2_1.30.3/rke2-images-core.linux-amd64.tar.zst
+wget http://10.10.54.4/rke2_1.30.3/rke2.linux-amd64.tar.gz
 }
 ```
 
-##### Download v1.29
-
-download tarball from https://github.com/rancher/rke2/releases/tag/v1.30.2%2Brke2r1
+#### Add Insecure Registry (k-harbor-01.server.maas)
 
 ```shell
 {
-rm -rf /var/lib/rancher/rke2/agent/images/
-mkdir -p /var/lib/rancher/rke2/agent/images/
-cd /var/lib/rancher/rke2/agent/images/
-wget http://10.10.54.4/rke2_1.29/rke2-images-cilium.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/rke2-images-core.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/rke2-images.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/rke2.linux-amd64.tar.gz
-wget http://10.10.54.4/rke2_1.29/sha256sum-amd64.txt
-######### OPTIONAL INSTALL CANAL
-wget http://10.10.54.4/rke2_1.29/rke2-images-canal.linux-amd64.tar.gz
+mkdir -p /etc/rancher/rke2
+echo 'configs:
+  "k-harbor-01.server.maas":
+    tls:
+      insecure_skip_verify: true' > /etc/rancher/rke2/registries.yaml
 }
 ```
 
-#### Create Token on RKE2 Server
+
+##### Step to rewrite docker.io to k-harbor-01.server.maas
+
+###### Step to Add SelfSign prevent containerd x509 cert error
 
 ```shell
 {
-rke2 token create
+export HABOR_URL=k-harbor-01.server.maas:443
+openssl s_client -connect ${HABOR_URL} -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM > 00-harbor-ca.crt 
+sudo cp 00-harbor-ca.crt /usr/local/share/ca-certificates/00-harbor-ca.crt 
+sudo update-ca-certificates
+curl -k https://${HABOR_URL}
 }
 ```
 
-exmaple result
+
+###### Config Work ( Rewrite Docker.io to proxy)
 
 ```shell
-root@k-gong-kubeadm2-m-01:/etc/rancher/rke2# rke2 token create
-K10e4e3316ff062b417c3f19b31838f15650bbca5e480de1d08b147fa5173c866dc::h0b3in.bom7edr4s00fvb6w
-root@k-gong-kubeadm2-m-01:/etc/rancher/rke2# 
+{
+mkdir -p /etc/rancher/rke2/
+PRIVATE_REPO_URL="k-harbor-01.server.maas:443"
+cat <<EOF > /etc/rancher/rke2/registries.yaml
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-hub.docker.io/\$1"
+  hub.docker.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-hub.docker.io/\$1"
+  ghcr.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-ghcr.io/\$1"
+  gcr.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-gcr.io/\$1"
+  quay.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-quay.io/\$1"
+  registry.k8s.io:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-registry.k8s.io/\$1"
+  public.ecr.aws:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-public.ecr.aws/\$1"
+  registry.gitlab.com:
+    endpoint:
+      - "https://${PRIVATE_REPO_URL}"
+    rewrite:
+      "(.*)": "proxy-registry.gitlab.com/\$1"
+EOF
+cat /etc/rancher/rke2/registries.yaml
+}
 ```
+
+<!-- ###### Config Work ( Rewrite Docker.io to proxy)
+
+```shell
+{
+mkdir -p /etc/rancher/rke2/
+echo 'mirrors:
+  docker.io:
+    endpoint:
+      - "https://k-harbor-01.server.maas:443"
+    rewrite:
+      "(.*)": "proxy-hub.docker.io/$1"' > /etc/rancher/rke2/registries.yaml
+cat /etc/rancher/rke2/registries.yaml
+}
+``` -->
 
 #### Create RKE2 Agent Configuration
 
+##### RKE2 - Default Worker (Main)
 ```shell
 {
 # Define variables
 RKE2_SERVER_IP=10.10.52.11
-RKE2_AGENT_TOKEN=K10e4e3316ff062b417c3f19b31838f15650bbca5e480de1d08b147fa5173c866dc::h0b3in.bom7edr4s00fvb6w
+RKE2_AGENT_TOKEN==K10412177778a68f82194eaf1b6b1a3ff0abd4d1dac88cd8da9746f4757f527aeeb::server:564e6b1c9d7a18f7e0b1cfa1ac7cdfe2
 # Generate config.yaml content
 mkdir -p /etc/rancher/rke2/
 cat <<EOF > /etc/rancher/rke2/config.yaml
 server: https://${RKE2_SERVER_IP}:9345
 token: ${RKE2_AGENT_TOKEN}
+disable:
+  - rke2-ingress-nginx
 EOF
 }
 ```
 
-#### Add Insecure Registry (k-harbor-01.maas)
-
+##### RKE2 - Default Worker (disable nginx)
 ```shell
 {
-echo 'configs:
-  "k-harbor-01.maas":
-    tls:
-      insecure_skip_verify: true' > /etc/rancher/rke2/registries.yaml
+# Define variables
+RKE2_SERVER_IP=10.10.52.11
+RKE2_AGENT_TOKEN=K10412177778a68f82194eaf1b6b1a3ff0abd4d1dac88cd8da9746f4757f527aeeb::server:564e6b1c9d7a18f7e0b1cfa1ac7cdfe2
+# Generate config.yaml content
+mkdir -p /etc/rancher/rke2/
+cat <<EOF > /etc/rancher/rke2/config.yaml
+server: https://${RKE2_SERVER_IP}:9345
+token: ${RKE2_AGENT_TOKEN}
+disable:
+  - rke2-ingress-nginx
+EOF
 }
 ```
+
+##### RKE2 - Ceph Worker
+```shell
+{
+# Define variables
+RKE2_SERVER_IP=10.10.52.11
+RKE2_AGENT_TOKEN=K10412177778a68f82194eaf1b6b1a3ff0abd4d1dac88cd8da9746f4757f527aeeb::server:564e6b1c9d7a18f7e0b1cfa1ac7cdfe2
+# Generate config.yaml content
+mkdir -p /etc/rancher/rke2/
+cat <<EOF > /etc/rancher/rke2/config.yaml
+server: https://${RKE2_SERVER_IP}:9345
+token: ${RKE2_AGENT_TOKEN}
+node-label:
+  - "storage-node=true"
+# disable:
+#   - rke2-ingress-nginx
+EOF
+}
+```
+
+##### RKE2 - Ceph Worker
+```shell
+{
+# Define variables
+RKE2_SERVER_IP=10.10.52.11
+RKE2_AGENT_TOKEN=K10412177778a68f82194eaf1b6b1a3ff0abd4d1dac88cd8da9746f4757f527aeeb::server:564e6b1c9d7a18f7e0b1cfa1ac7cdfe2
+# Generate config.yaml content
+mkdir -p /etc/rancher/rke2/
+cat <<EOF > /etc/rancher/rke2/config.yaml
+server: https://${RKE2_SERVER_IP}:9345
+token: ${RKE2_AGENT_TOKEN}
+node-label:
+  - "storage-node=true"
+disable:
+  - rke2-ingress-nginx
+EOF
+}
+```
+
+
+
+
 
 #### Install RKE2 Systemd & Start Systemd
 
@@ -962,14 +1353,21 @@ download https://get.rke2.io/ and rename to rke2_install.sh
 
 ```shell
 {
-curl -sfL http://10.10.54.4/rke2/rke2_install.sh --output install.sh
-INSTALL_RKE2_ARTIFACT_PATH=/var/lib/rancher/rke2/agent/images/ sh install.sh
+export TARGET_RKE_VERSION='v1.30.3+rke2r1'
+curl -sfL http://10.10.54.4/rke2_1.30.3/get.rke2.io --output install.sh
+sleep 1
+chmod 755 ./install.sh
+sleep 1
+INSTALL_RKE2_ARTIFACT_PATH=/root/images INSTALL_RKE2_VERSION="${TARGET_RKE_VERSION}" INSTALL_RKE2_TYPE="agent" ./install.sh
 sleep 2
 systemctl enable rke2-agent.service
 sleep 1
 systemctl start rke2-agent.service
+sleep 10 
+rm -f /var/lib/rancher/rke2/agent/images/*
 }
 ```
+
 
 #### journalctl - log tracing
 
@@ -980,143 +1378,14 @@ should start all component by 5 to 10 minutes
 journalctl -f -u rke2-agent.service
 }
 ```
-
-
-### Test
-
-
-  
-
-echo "
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
-metadata:
-  name: grafana
-  namespace: kube-system
-spec:
-  createNamespace: true
-  chart: grafana
-  repo: https://grafana.github.io/helm-charts
-  targetNamespace: monitoring
-  set:
-    adminPassword: "NotVerySafePassword"
-  valuesContent: |-
-    image:
-      tag: master
-    env:
-      GF_EXPLORE_ENABLED: true
-    adminUser: admin
-    sidecar:
-      datasources:
-        enabled: true" > /var/lib/rancher/rke2/server/manifests/rke2-grafana.yaml
-
-
-
-
-### Test
-
-
-docker pull --insecure-registry=k-harbor-01.maas k-harbor-01.maas/rancher_image/rancher:latest
-sudo docker run --privileged -d --restart=unless-stopped -p 443:443 k-harbor-01.maas/rancher_image/rancher
-
-
-
-docker logs $(docker ps  | grep rancher | awk '{print $1}') 2>&1 | grep "Bootstrap Password:"
-
-2024/07/19 06:50:18 [INFO] Bootstrap Password: xnrj44k2mfxf2cj7k79xrtf8wpqrssfchnjphklz5xfvcdkwrm8nbs
-
-admin password : tamJ0uIQ6yJETfOW
-
-
-
-#### Add Network Param
+## Uninstall RKE2
 
 ```shell
 {
-modprobe br_netfilter
-modprobe overlay
-cat <<EOF | tee /etc/modules-load.d/k8s.conf
-br_netfilter
-overlay
-EOF
-}
-```
-
-```shell
-{
-cat <<EOF | tee /etc/sysctl.conf
-net.ipv4.ip_forward=1
-net.ipv4.conf.all.send_redirects=0
-net.ipv4.conf.default.send_redirects=0
-net.ipv4.conf.default.accept_source_route=0
-net.ipv4.conf.all.accept_redirects=0
-net.ipv4.conf.default.accept_redirects=0
-net.ipv4.conf.all.log_martians=1
-net.ipv4.conf.default.log_martians=1
-net.ipv4.conf.all.rp_filter=1
-net.ipv4.conf.default.rp_filter=1
-net.ipv6.conf.all.accept_ra=0
-net.ipv6.conf.default.accept_ra=0
-net.ipv6.conf.all.accept_redirects=0
-net.ipv6.conf.default.accept_redirects=0
-kernel.keys.root_maxbytes=25000000
-kernel.keys.root_maxkeys=1000000
-kernel.panic=10
-kernel.panic_on_oops=1
-vm.overcommit_memory=1
-vm.panic_on_oom=0
-net.ipv4.ip_local_reserved_ports=30000-32767
-net.bridge.bridge-nf-call-iptables=1
-net.bridge.bridge-nf-call-arptables=1
-net.bridge.bridge-nf-call-ip6tables=1
-EOF
-sleep 2
-sysctl --system
-}
-```
-
-```shell
-{
-echo '
-#!/usr/sbin/nft -f
-
-flush ruleset
-
-table inet filter {
-  chain input {
-    type filter hook input priority filter; policy accept;
-    tcp dport 22 accept;
-    ct state established,related accept;
-    iifname "lo" accept;
-    ip protocol icmp accept;
-    ip daddr 8.8.8.8 tcp dport 53 accept;
-    ip daddr 8.8.8.8 udp dport 53 accept;
-    ip daddr 8.8.4.4 tcp dport 53 accept;
-    ip daddr 8.8.4.4 udp dport 53 accept;
-    ip daddr 1.1.1.1 tcp dport 53 accept;
-    ip daddr 1.1.1.1 udp dport 53 accept;
-    ip saddr 192.168.100.11 accept;
-    ip saddr 192.168.100.12 accept;
-    ip saddr 192.168.100.13 accept;
-    ip saddr 192.168.100.14 accept;
-    ip saddr 192.168.100.15 accept;
-    ip saddr 192.168.100.16 accept;
-    ip saddr 192.168.100.100 tcp dport {9345,6443,443,80} accept;
-    ip saddr 192.168.100.100 udp dport {9345,6443,443,80} accept;
-    counter packets 0 bytes 0 drop;
-  }
-
-  chain forward {
-    type filter hook forward priority filter; policy accept;
-  }
-
-  chain output {
-    type filter hook output priority filter; policy accept;
-  }
-}' > /etc/nftables.conf
+/usr/local/bin/rke2-killall.sh
 sleep 1
-systemctl enable nftables
+/usr/local/bin/rke2-uninstall.sh
 sleep 1
-systemctl restart nftables
+reboot
 }
 ```
